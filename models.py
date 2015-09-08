@@ -59,17 +59,6 @@ class Conference(ndb.Model):
     maxAttendees    = ndb.IntegerProperty()
     seatsAvailable  = ndb.IntegerProperty()
 
-class Session(ndb.Model):
-    """Session -- Session object"""
-    conference      = ndb.KeyProperty(kind='Conference')                      # conference that the session belongs to
-    sessionName     = ndb.StringProperty(required=True)
-    speaker         = ndb.StringProperty()
-    highlights      = ndb.StringProperty(repeated=True)
-    duration        = ndb.StringProperty()
-    typeOfSession   = ndb.StringProperty(repeated=True, choices=sessiontypes)  # list with possible types of sessions
-    Date            = ndb.DateProperty()
-    startTime       = ndb.TimeProperty()
-
 class ConferenceForm(messages.Message):
     """ConferenceForm -- Conference outbound form message"""
     name            = messages.StringField(1)
@@ -85,16 +74,29 @@ class ConferenceForm(messages.Message):
     websafeKey      = messages.StringField(11)
     organizerDisplayName = messages.StringField(12)
 
+
+class Session(ndb.Model):
+    """Session -- Session object"""
+    conference      = ndb.KeyProperty(kind='Conference')                      # conference that the session belongs to
+    name            = ndb.StringProperty(required=True)
+    speaker         = ndb.StringProperty()
+    highlights      = ndb.StringProperty(repeated=True)
+    duration        = ndb.StringProperty()
+    typeOfSession   = ndb.StringProperty(repeated=True, choices=sessiontypes)  # list with possible types of sessions
+    Date            = ndb.DateProperty()
+    startTime       = ndb.TimeProperty()
+
 class SessionForm(messages.Message):
     """SessionForm -- Session outbound form message"""
-    sessionName     = messages.StringField(1)
+    name            = messages.StringField(1)
     speaker         = messages.StringField(2)
     highlights      = messages.StringField(3, repeated=True)
     duration        = messages.StringField(4)
     typeOfSession   = messages.StringField(5)
-    Date            = messages.StringField(6)
-    startTime       = messages.StringField(7)
-    sessionId       = messages.StringField(8)
+    Date            = messages.StringField(6) #DateField()
+    startTime       = messages.StringField(7) #TimeField()
+    sessionKey      = messages.StringField(8)
+    websafeKey      = messages.StringField(9)
 
 class ConferenceForms(messages.Message):
     """ConferenceForms -- multiple Conference outbound form message"""
