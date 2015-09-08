@@ -12,6 +12,8 @@ created/forked from conferences.py by wesc on 2014 may 24
 
 __author__ = 'wesc+api@google.com (Wesley Chun)'
 
+sessiontypes = ['workshop', 'keynotes', 'breakout']
+
 import httplib
 import endpoints
 from protorpc import messages
@@ -57,6 +59,17 @@ class Conference(ndb.Model):
     maxAttendees    = ndb.IntegerProperty()
     seatsAvailable  = ndb.IntegerProperty()
 
+class Session(ndb.Model):
+    """Session -- Session object"""
+    conference      = ndb.KeyProperty(kind='Conference')                      # conference that the session belongs
+    sessionName     = ndb.StringProperty(required=True)
+    speaker         = ndb.StringProperty()
+    highlights      = ndb.StringProperty(repeated=True)
+    duration        = ndb.StringProperty()
+    typeOfSession   = ndb.StringProperty(repeated=True, choices=sessiontypes)  # list with possible types of sessions
+    Date            = ndb.DateProperty()
+    startTime       = ndb.TimeProperty()
+
 class ConferenceForm(messages.Message):
     """ConferenceForm -- Conference outbound form message"""
     name            = messages.StringField(1)
@@ -71,6 +84,17 @@ class ConferenceForm(messages.Message):
     endDate         = messages.StringField(10) #DateTimeField()
     websafeKey      = messages.StringField(11)
     organizerDisplayName = messages.StringField(12)
+
+class SessionForm(messages.Message):
+    """SessionForm -- Session outbound form message"""
+    sessionName     = messages.StringField(1)
+    speaker         = messages.StringField(2)
+    highlights      = messages.StringField(3, repeated=True)
+    duration        = messages.StringField(4)
+    typeOfSession   = messages.StringField(5)
+    Date            = messages.StringField(6)
+    startTime       = messages.StringField(7)
+    sessionId       = messages.StringField(8)
 
 class ConferenceForms(messages.Message):
     """ConferenceForms -- multiple Conference outbound form message"""
