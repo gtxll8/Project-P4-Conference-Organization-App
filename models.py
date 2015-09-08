@@ -61,7 +61,7 @@ class Conference(ndb.Model):
 
 class Session(ndb.Model):
     """Session -- Session object"""
-    conference      = ndb.KeyProperty(kind='Conference')                      # conference that the session belongs
+    conference      = ndb.KeyProperty(kind='Conference')                      # conference that the session belongs to
     sessionName     = ndb.StringProperty(required=True)
     speaker         = ndb.StringProperty()
     highlights      = ndb.StringProperty(repeated=True)
