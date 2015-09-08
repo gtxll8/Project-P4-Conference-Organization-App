@@ -92,10 +92,10 @@ indexes:
 
 - kind: Conference
   properties:
-  - name: topics
+  - name: seatsAvailable
   - name: name
 
 - kind: Conference
   properties:
-  - name: seatsAvailable
+  - name: topics
   - name: name
