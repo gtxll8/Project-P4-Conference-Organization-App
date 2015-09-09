@@ -335,6 +335,29 @@ class ConferenceApi(remote.Service):
         )
 
     # - - - Sessions Object- - - - - - - - - - - - - - - - - - -
+    def _ndbKey(self, *args, **kwargs):
+        # this try except clause is needed for NDB issue 143
+        # https://code.google.com/p/appengine-ndb-experiment/issues/detail?id=143
+        try:
+            key = ndb.Key(**kwargs)
+        except Exception as e:
+            if e.__class__.__name__ == 'ProtocolBufferDecodeError':
+                key = 'Invalid Key'
+        return key
+
+    def _checkKey(self, key, websafeKey, kind):
+        '''Check that key exists and is the right Kind'''
+        if key == 'Invalid Key':
+            raise endpoints.NotFoundException(
+                'Invalid key: %s' % websafeKey)
+
+        if not key:
+            raise endpoints.NotFoundException(
+                'No %s found with key: %s' % (kind, websafeKey))
+
+        if key.kind() != kind:
+            raise endpoints.NotFoundException(
+                'Not a key of the %s Kind: %s' % (kind, websafeKey))
 
     def _copySessionToForm(self, session, displayName):
         """Copy relevant fields from Session to SessionForm."""
