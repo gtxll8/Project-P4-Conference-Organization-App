@@ -334,6 +334,7 @@ class ConferenceApi(remote.Service):
         if user_id != conf.organizerUserId:
             raise endpoints.ForbiddenException(
                 'Only the conference organizer can create sessions.')
+
         # get the conference ID
         c_id = conf.key.id()
 
