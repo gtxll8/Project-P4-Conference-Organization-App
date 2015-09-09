@@ -364,6 +364,17 @@ class ConferenceApi(remote.Service):
         if not request.name:
             raise endpoints.BadRequestException("Session 'name' field required")
 
+        # copy SessionForm/ProtoRPC Message into dict
+        data = {field.name: getattr(request, field.name) for field in request.all_fields()}
+        del data['websafeConferenceKey']
+        del data['websafeKey']
+
+        # add default values for those missing (both data model & outbound Message)
+        for df in DEFAULTS:
+            if data[df] in (None, []):
+                data[df] = DEFAULTS[df]
+                setattr(request, df, DEFAULTS[df])
+
         # check if user logged in is the same as conference organizer
         conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
 
@@ -371,19 +382,11 @@ class ConferenceApi(remote.Service):
             raise endpoints.ForbiddenException(
                 'Only the conference organizer can create sessions.')
 
+        # check to see if the actual conf.key exists
+        self._checkKey(conf.key, request.websafeConferenceKey, 'Conference')
+
         # get the conference ID
         c_id = conf.key.id()
-
-        # copy SessionForm/ProtoRPC Message into dict
-        data = {field.name: getattr(request, field.name) for field in request.all_fields()}
-        del data['websafeKey']
-        del data['organizerDisplayName']
-
-        # add default values for those missing (both data model & outbound Message)
-        for df in DEFAULTS:
-            if data[df] in (None, []):
-                data[df] = DEFAULTS[df]
-                setattr(request, df, DEFAULTS[df])
 
         # convert dates from strings to Date objects; set month based on start_date
         if data['Date']:
