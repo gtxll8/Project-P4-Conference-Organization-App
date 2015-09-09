@@ -81,6 +81,16 @@ CONF_POST_REQUEST = endpoints.ResourceContainer(
     websafeConferenceKey=messages.StringField(1),
 )
 
+SESSION_GET_REQUEST = endpoints.ResourceContainer(
+    message_types.VoidMessage,
+    websafeConferenceKey=messages.StringField(1),
+)
+
+SESSION_POST_REQUEST = endpoints.ResourceContainer(
+    SessionForm,
+    websafeConferenceKey=messages.StringField(1),
+)
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
@@ -315,7 +325,24 @@ class ConferenceApi(remote.Service):
                    conferences]
         )
 
-    # - - - Session objects - - - - - - - - - - - - - - - - - - -
+    # - - - Sessions Object- - - - - - - - - - - - - - - - - - -
+
+    def _copySessionToForm(self, session, displayName):
+        """Copy relevant fields from Session to SessionForm."""
+        sf = ConferenceForm()
+        for field in sf.all_fields():
+            if hasattr(session, field.name):
+                # convert Date to date string; just copy others
+                if field.name.endswith('Date'):
+                    setattr(sf, field.name, str(getattr(session, field.name)))
+                else:
+                    setattr(sf, field.name, getattr(session, field.name))
+            elif field.name == "websafeKey":
+                setattr(sf, field.name, session.key.urlsafe())
+        if displayName:
+            setattr(sf, 'organizerDisplayName', displayName)
+        sf.check_initialized()
+        return sf
 
     def _createSessionObject(self, request):
         """Create or update Session object, returning SessionForm/request."""
@@ -372,6 +399,16 @@ class ConferenceApi(remote.Service):
         Session(**data).put()
 
         return request
+
+    @endpoints.method(SessionForm, SessionForm, path='session',
+                      http_method='POST', name='createSession')
+    def createSession(self, request):
+        """Create new session."""
+        return self._createSessionObject(request)
+
+    @endpoints.method(SESSION_POST_REQUEST, SessionForm,
+                      path='session/create/{websafeConferenceKey}',
+                      http_method='PUT', name='updateSession')
 
     # - - - Profile objects - - - - - - - - - - - - - - - - - - -
 
