@@ -392,7 +392,7 @@ class ConferenceApi(remote.Service):
         s_id = Session.allocate_ids(size=1, parent=c_key)[0]
         s_key = ndb.Key(Session, s_id, parent=c_key)
 
-        data['key'] = s_key
+        data['sessionKey'] = s_key
         data['organizerUserId'] = request.organizerUserId = user_id
 
         # create session
