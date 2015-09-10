@@ -554,12 +554,6 @@ class ConferenceApi(remote.Service):
         del data['websafeConferenceKey']
         del data['websafeKey']
 
-        # add default values for those missing (both data model & outbound Message)
-        for df in DEFAULTS:
-            if data[df] in (None, []):
-                data[df] = DEFAULTS[df]
-                setattr(request, df, DEFAULTS[df])
-
         # check if user logged in is the same as conference organizer
         conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
 
