@@ -525,7 +525,7 @@ class ConferenceApi(remote.Service):
                         setattr(sf, field.name, str(startDateTime.date()))
                     if hasattr(session, 'startDateTime') and field.name == 'startTime':
                         setattr(sf, field.name, str(startDateTime.time().strftime('%H:%M')))
-            elif field.name == "websafeKey":
+            elif field.name == "sessionKey":
                 setattr(sf, field.name, session.key.urlsafe())
             elif field.name == "speaker":
                 setattr(sf, field.name, displayName)
