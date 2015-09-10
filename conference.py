@@ -535,6 +535,17 @@ class ConferenceApi(remote.Service):
         sf.check_initialized()
         return sf
 
+    def _getSessions(self, webSafeKey):
+        """Get all sessions from a conference."""
+        confkey = ndb.Key(urlsafe=webSafeKey)
+        # check if this key belongs to an actual conference
+        if not confkey:
+            raise endpoints.NotFoundException('No conference found.')
+
+        # retrieve all sessions from ancestor conferences
+        sessions = Session.query(ancestor=confkey)
+        return sessions
+
     def _createSessionObject(self, request):
         """Create or update Session object, returning SessionForm/request."""
         # preload necessary data items
@@ -609,7 +620,7 @@ class ConferenceApi(remote.Service):
 
         # Return set of SessionForm objects per Session.
         return SessionForms(
-            items=[self._copySessionToForm(sess) for sess in sessions]
+            items=[self._copySessionToForm(session) for session in sessions]
         )
 
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -
