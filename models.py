@@ -78,19 +78,18 @@ class ConferenceForm(messages.Message):
 class Session(ndb.Model):
     """Session -- Session object"""
     name            = ndb.StringProperty(required=True)
-    speaker         = ndb.StringProperty()
+    speakerDisplayName = ndb.StringProperty()
     highlights      = ndb.StringProperty(repeated=True)
-    duration        = ndb.StringProperty()
+    duration        = ndb.IntegerProperty()
     typeOfSession   = ndb.StringProperty(repeated=True, choices=sessiontypes)  # list with possible types of sessions
-    Date            = ndb.DateProperty()
-    startTime       = ndb.TimeProperty()
+    startDateTime       = ndb.TimeProperty()
 
 class SessionForm(messages.Message):
     """SessionForm -- Session outbound form message"""
     name            = messages.StringField(1)
-    speaker         = messages.StringField(2)
+    speakerDisplayName = messages.StringField(2)
     highlights      = messages.StringField(3, repeated=True)
-    duration        = messages.StringField(4)
+    duration        = messages.IntegerField(4)
     typeOfSession   = messages.StringField(5)
     Date            = messages.StringField(6) #DateField()
     startTime       = messages.StringField(7) #TimeField()
