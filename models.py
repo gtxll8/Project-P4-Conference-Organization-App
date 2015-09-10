@@ -82,6 +82,7 @@ class Session(ndb.Model):
     highlights      = ndb.StringProperty(repeated=True)
     duration        = ndb.IntegerProperty()
     typeOfSession   = ndb.StringProperty(repeated=True, choices=sessiontypes)  # list with possible types of sessions
+    startDate       = ndb.DateProperty()
     startDateTime       = ndb.TimeProperty()
     conference = ndb.KeyProperty(kind='Conference')
 
