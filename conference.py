@@ -33,7 +33,7 @@ from models import Conference
 from models import ConferenceForm
 from models import ConferenceForms
 from models import Session
-from models import SessionForm
+from models import SessionForm, SessionForms
 from models import ConferenceQueryForm
 from models import ConferenceQueryForms
 from models import TeeShirtSize
@@ -597,6 +597,22 @@ class ConferenceApi(remote.Service):
         """Create new session."""
         return self._createSessionObject(request)
 
+# - - - Get all sessions from a conference - - - - -  - - - -
+
+    # getConferenceSessions(websafeConferenceKey) -- Given a conference, return all sessions
+    @endpoints.method(CONF_GET_REQUEST, SessionForms,
+            path='conference/{websafeConferenceKey}/sessions',
+            http_method='GET', name='getConferenceSessions')
+    def getConferenceSessions(self, request):
+        """Get list of all sessions for a conference."""
+
+        c_key = self._ndbKey(urlsafe=request.websafeConferenceKey)
+
+        # check that c_key is a Conference key and it exists
+        self._checkKey(c_key, request.websafeConferenceKey, 'Conference')
+
+        sessions = Session.query(ancestor=c_key)
+        return SessionForms(items=[self._copySessionToForm(session) for session in sessions])
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -
 
     @staticmethod
