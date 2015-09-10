@@ -573,8 +573,6 @@ class ConferenceApi(remote.Service):
         except Exception:
             raise ValueError("'startTime' needed: '%H:%M' ")
 
-
-
         s_id = Session.allocate_ids(size=1, parent=conf.key)[0]
         s_key = ndb.Key(Session, s_id, parent=conf.key)
         data['key'] = s_key
