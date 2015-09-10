@@ -12,7 +12,7 @@ created by wesc on 2014 apr 21
 
 __author__ = 'wesc+api@google.com (Wesley Chun)'
 
-import datetime
+from datetime import datetime
 import endpoints
 from protorpc import messages
 from protorpc import message_types
@@ -530,7 +530,7 @@ class ConferenceApi(remote.Service):
                         setattr(sf, field.name, str(startDateTime.time().strftime('%H:%M')))
             elif field.name == "websafeKey":
                 setattr(sf, field.name, session.key.urlsafe())
-            elif field.name == "speakerDisplayName":
+            elif field.name == "speaker":
                 setattr(sf, field.name, displayName)
 
         sf.check_initialized()
@@ -548,48 +548,38 @@ class ConferenceApi(remote.Service):
             raise endpoints.BadRequestException("Session 'name' field required")
 
         # copy SessionForm/ProtoRPC Message into dict
-        # data = {field.name: getattr(request, field.name) for field in request.all_fields()}
-        # del data['websafeConferenceKey']
-
-        # Collect data from request.
-        data = {}
-        for field in request.all_fields():
-            value = getattr(request, field.name)
-            # Value might be None, if not provided on creation.
-
-            if value and field.name == 'date':
-                data['date'] = datetime.datetime.strptime(
-                    value, "%Y-%m-%d").date()
-
-            elif value and field.name == 'startTime':
-                data['startTime'] = datetime.datetime.strptime(value, "%H:%M").time()
-            else:
-                data[field.name] = value
-
+        data = {field.name: getattr(request, field.name) for field in request.all_fields()}
+        data['conference'] = ndb.Key(urlsafe=request.websafeConferenceKey)
         del data['websafeConferenceKey']
+        del data['sessionKey']
 
-        # get conference data
-        conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
-        # check if conference exist
-        if not conf:
-            raise endpoints.NotFoundException('No conference found.')
-        # check if user logged in is the same as conference organizer
-        if user_id != conf.organizerUserId:
-            raise endpoints.ForbiddenException(
-                'Only the conference organizer can create sessions.')
+        # convert dates from strings
+        try:
+            data['startDate'] = datetime.strptime(data['startDate'][:10], "%Y-%m-%d").date()
+        except Exception:
+            raise ValueError("'startDate' needed. Cannot be void or in the wrong format (year-month-day)")
 
-        # convert dates from strings to Date objects; set month based on start_date
-        if data['Date']:
-            data['Date'] = datetime.strptime(data['startDate'][:10], "%Y-%m-%d").date()
+        try:
+            data['startTime'] = datetime.strptime(data['startTime'], '%H:%M').time()
+        except Exception:
+            raise ValueError("'startTime' needed: '%H:%M' ")
 
-        s_id = Session.allocate_ids(size=1, parent=conf.key)[0]
-        s_key = ndb.Key(Session, s_id, parent=conf.key)
-        data['key'] = s_key
+        # check if duration is an integer
+        try:
+            data['duration'] = int(data['duration'])
+        except Exception:
+            raise ValueError("'duration' needed. Has to be an integer (minutes) and cannot be void")
 
-        sess = Session(**data)
-        sess.put()
+        # creation of Session & return (modified) SessionForm
+        new_key = Session(**data).put()
 
-        return self._copySessionToForm(sess)
+        taskqueue.add(params={'conferenceKey': request.websafeConferenceKey,
+            'speaker': data['speaker']},
+            url='/tasks/get_featured_speaker'
+        )
+
+        request.sessionKey = new_key.urlsafe()
+        return self._copySessionToForm(request)
 
     # get all sessions belonging to a conference using its key
     def _getSessions(self, webSafeKey):
@@ -603,7 +593,7 @@ class ConferenceApi(remote.Service):
         sessions = Session.query(ancestor=confkey)
         return sessions
 
-    @endpoints.method(SESSION_POST_REQUEST, SessionForm, path='session/{websafeConferenceKey}',
+    @endpoints.method(SESSION_POST_REQUEST, SessionForm, path='session/create/{websafeConferenceKey}',
                       http_method='POST', name='createSession')
     def createSession(self, request):
         """Create new session."""
