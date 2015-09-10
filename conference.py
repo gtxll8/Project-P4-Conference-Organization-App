@@ -513,23 +513,25 @@ class ConferenceApi(remote.Service):
 
     # - - - Sessions Object- - - - - - - - - - - - - - - - - - -
 
-    def _copySessionToForm(self, session, displayName):
+    def _copySessionToForm(self, session):
         """Copy relevant fields from Session to SessionForm."""
         sf = SessionForm()
+        print str(session)
         for field in sf.all_fields():
             if hasattr(session, field.name):
-                # convert date and time form string
-                startDateTime = getattr(session, 'startDateTime')
-                if startDateTime:
-                    if field.name == 'Date':
-                        setattr(sf, field.name, str(startDateTime.date()))
-                    if hasattr(session, 'startDateTime') and field.name == 'startTime':
-                        setattr(sf, field.name, str(startDateTime.time().strftime('%H:%M')))
-            elif field.name == "sessionKey":
-                setattr(sf, field.name, session.key.urlsafe())
-            elif field.name == "speaker":
-                setattr(sf, field.name, displayName)
-
+                # convert Date to date string; just copy others
+                if field.name in ['startDate', 'startTime'] :
+                    setattr(sf, field.name, str(getattr(session, field.name)))
+                elif field.name == 'duration':
+                    setattr(sf, field.name, int(getattr(session, field.name)))
+                else:
+                    setattr(sf, field.name, getattr(session, field.name))
+        if type(session) is Session:
+            # if Session object
+            setattr(sf, 'sessionKey', str(session.key.urlsafe()))
+        else:
+            # if request
+            setattr(sf, 'sessionKey', str(session.sessionKey))
         sf.check_initialized()
         return sf
 
