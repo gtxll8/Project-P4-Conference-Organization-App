@@ -83,7 +83,7 @@ class Session(ndb.Model):
     duration        = ndb.IntegerProperty()
     typeOfSession   = ndb.StringProperty(choices=['workshop', 'keynotes', 'breakout'])  # list with possible types of sessions
     startDate       = ndb.DateProperty()
-    startDateTime       = ndb.TimeProperty()
+    startTime       = ndb.TimeProperty()
     conference = ndb.KeyProperty(kind='Conference')
 
 class SessionForm(messages.Message):
