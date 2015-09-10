@@ -601,18 +601,17 @@ class ConferenceApi(remote.Service):
 
     # getConferenceSessions(websafeConferenceKey) -- Given a conference, return all sessions
     @endpoints.method(CONF_GET_REQUEST, SessionForms,
-            path='conference/{websafeConferenceKey}/sessions',
-            http_method='GET', name='getConferenceSessions')
+                      path='session/{websafeConferenceKey}',
+                      http_method='GET', name='getConferenceSessions')
     def getConferenceSessions(self, request):
-        """Get list of all sessions for a conference."""
+        """Return all sessions of a conference."""
+        sessions = self._getSessions(request.websafeConferenceKey)
 
-        c_key = self._ndbKey(urlsafe=request.websafeConferenceKey)
+        # Return set of SessionForm objects per Session.
+        return SessionForms(
+            items=[self._copySessionToForm(sess) for sess in sessions]
+        )
 
-        # check that c_key is a Conference key and it exists
-        self._checkKey(c_key, request.websafeConferenceKey, 'Conference')
-
-        sessions = Session.query(ancestor=c_key)
-        return SessionForms(items=[self._copySessionToForm(session) for session in sessions])
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -
 
     @staticmethod
