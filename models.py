@@ -92,7 +92,7 @@ class SessionForm(messages.Message):
     highlights      = messages.StringField(3, repeated=True)
     duration        = messages.IntegerField(4)
     typeOfSession   = messages.StringField(5)
-    Date            = messages.StringField(6) #DateField()
+    startDate       = messages.StringField(6) #DateField()
     startTime       = messages.StringField(7) #TimeField()
     sessionKey      = messages.StringField(8)
     websafeKey      = messages.StringField(9)
