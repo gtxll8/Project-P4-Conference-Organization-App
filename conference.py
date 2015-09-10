@@ -562,7 +562,7 @@ class ConferenceApi(remote.Service):
                     value, "%Y-%m-%d").date()
 
             elif value and field.name == 'startTime':
-                data['startTime'] = datetime.strptime(value, "%H:%M").time()
+                data['startTime'] = datetime.datetime.strptime(value, "%H:%M").time()
             else:
                 data[field.name] = value
 
