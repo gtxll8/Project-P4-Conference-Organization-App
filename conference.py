@@ -578,13 +578,12 @@ class ConferenceApi(remote.Service):
         c_key = ndb.Key(Conference, c_id)
         s_id = Session.allocate_ids(size=1, parent=c_key)[0]
         s_key = ndb.Key(Session, s_id, parent=c_key)
-
         data['sessionKey'] = s_key
 
-        # create session
-        Session(**data).put()
+        sess = Session(**data)
+        sess.put()
 
-        return request
+        return self._copySessionToForm(sess)
 
     # get all sessions belonging to a conference using its key
     def _getSessions(self, webSafeKey):
