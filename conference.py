@@ -612,7 +612,7 @@ class ConferenceApi(remote.Service):
 # - - - Get all sessions from a conference - - - - -  - - - -
 
     # getConferenceSessions(websafeConferenceKey) -- Given a conference, return all sessions
-    @endpoints.method(CONF_GET_REQUEST, SessionForms,
+    @endpoints.method(SESSION_GET_REQUEST, SessionForms,
                       path='session/{websafeConferenceKey}',
                       http_method='GET', name='getConferenceSessions')
     def getConferenceSessions(self, request):
