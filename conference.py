@@ -12,9 +12,7 @@ created by wesc on 2014 apr 21
 
 __author__ = 'wesc+api@google.com (Wesley Chun)'
 
-
-from datetime import datetime
-
+import datetime
 import endpoints
 from protorpc import messages
 from protorpc import message_types
@@ -564,8 +562,7 @@ class ConferenceApi(remote.Service):
                     value, "%Y-%m-%d").date()
 
             elif value and field.name == 'startTime':
-                data['startTime'] = datetime.datetime.strptime(
-                    value, "%H:%M").time()
+                data['startTime'] = datetime.strptime(value, "%H:%M").time()
             else:
                 data[field.name] = value
 
