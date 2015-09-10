@@ -550,7 +550,25 @@ class ConferenceApi(remote.Service):
             raise endpoints.BadRequestException("Session 'name' field required")
 
         # copy SessionForm/ProtoRPC Message into dict
-        data = {field.name: getattr(request, field.name) for field in request.all_fields()}
+        # data = {field.name: getattr(request, field.name) for field in request.all_fields()}
+        # del data['websafeConferenceKey']
+
+        # Collect data from request.
+        data = {}
+        for field in request.all_fields():
+            value = getattr(request, field.name)
+            # Value might be None, if not provided on creation.
+
+            if value and field.name == 'date':
+                data['date'] = datetime.datetime.strptime(
+                    value, "%Y-%m-%d").date()
+
+            elif value and field.name == 'startTime':
+                data['startTime'] = datetime.datetime.strptime(
+                    value, "%H:%M").time()
+            else:
+                data[field.name] = value
+
         del data['websafeConferenceKey']
 
         # get conference data
