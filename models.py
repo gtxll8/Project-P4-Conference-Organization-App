@@ -96,6 +96,10 @@ class SessionForm(messages.Message):
     sessionKey      = messages.StringField(8)
     websafeKey      = messages.StringField(9)
 
+class SessionForms(messages.Message):
+    """SessionForms -- multiple Sessions outbound form message"""
+    items = messages.MessageField(SessionForm, 1, repeated=True)
+
 class ConferenceForms(messages.Message):
     """ConferenceForms -- multiple Conference outbound form message"""
     items = messages.MessageField(ConferenceForm, 1, repeated=True)
