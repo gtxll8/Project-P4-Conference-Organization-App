@@ -459,7 +459,6 @@ class ConferenceApi(remote.Service):
         conf.put()
         return BooleanMessage(data=retval)
 
-
     @endpoints.method(message_types.VoidMessage, ConferenceForms,
             path='conferences/attending',
             http_method='GET', name='getConferencesToAttend')
@@ -483,14 +482,12 @@ class ConferenceApi(remote.Service):
          for conf in conferences]
         )
 
-
     @endpoints.method(CONF_GET_REQUEST, BooleanMessage,
             path='conference/{websafeConferenceKey}',
             http_method='POST', name='registerForConference')
     def registerForConference(self, request):
         """Register user for selected conference."""
         return self._conferenceRegistration(request)
-
 
     @endpoints.method(CONF_GET_REQUEST, BooleanMessage,
             path='conference/{websafeConferenceKey}',
@@ -548,6 +545,7 @@ class ConferenceApi(remote.Service):
             raise endpoints.BadRequestException("Session 'name' field required")
 
         # copy SessionForm/ProtoRPC Message into dict
+
         data = {field.name: getattr(request, field.name) for field in request.all_fields()}
         data['conference'] = ndb.Key(urlsafe=request.websafeConferenceKey)
         del data['websafeConferenceKey']
