@@ -611,7 +611,7 @@ class ConferenceApi(remote.Service):
 
         # Return set of SessionForm objects per Session.
         return SessionForms(
-            items=[self._copySessionToForm(session) for session in sessions]
+            items=[self._copySessionToForm(sess) for sess in sessions]
         )
 
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -
