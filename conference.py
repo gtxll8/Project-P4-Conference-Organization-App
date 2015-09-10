@@ -501,6 +501,18 @@ class ConferenceApi(remote.Service):
         """Unregister user for selected conference."""
         return self._conferenceRegistration(request, reg=False)
 
+    @endpoints.method(CONF_GET_REQUEST, ConferenceForm,
+                      path='conference/{websafeConferenceKey}',
+                      http_method='GET', name='getConference')
+    def getConference(self, request):
+        """Return requested conference (by websafeConferenceKey)."""
+        # Get Conference object from request; bail if not found.
+        conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
+        self._checkConf(conf)
+        prof = conf.key.parent().get()
+
+        return self._copyConferenceToForm(conf, getattr(prof, 'displayName'))
+
     # - - - Sessions Object- - - - - - - - - - - - - - - - - - -
 
     def _copySessionToForm(self, session, displayName):
@@ -579,7 +591,7 @@ class ConferenceApi(remote.Service):
 
         return request
 
-    @endpoints.method(SessionForm, SessionForm, path='session',
+    @endpoints.method(SessionForm, SessionForm, path='session/{websafeConferenceKey}',
                       http_method='POST', name='createSession')
     def createSession(self, request):
         """Create new session."""
