@@ -507,10 +507,13 @@ class ConferenceApi(remote.Service):
     def getConference(self, request):
         """Return requested conference (by websafeConferenceKey)."""
         # Get Conference object from request; bail if not found.
+        # get Conference object from request; bail if not found
         conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
-        self._checkConf(conf)
+        if not conf:
+            raise endpoints.NotFoundException(
+                'No conference found with key: %s' % request.websafeConferenceKey)
         prof = conf.key.parent().get()
-
+        # return ConferenceForm
         return self._copyConferenceToForm(conf, getattr(prof, 'displayName'))
 
     # - - - Sessions Object- - - - - - - - - - - - - - - - - - -
