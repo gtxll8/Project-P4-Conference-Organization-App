@@ -580,7 +580,6 @@ class ConferenceApi(remote.Service):
         s_key = ndb.Key(Session, s_id, parent=c_key)
 
         data['sessionKey'] = s_key
-        data['organizerUserId'] = request.organizerUserId = user_id
 
         # create session
         Session(**data).put()
