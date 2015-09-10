@@ -334,113 +334,6 @@ class ConferenceApi(remote.Service):
                 conferences]
         )
 
-    # - - - Sessions Object- - - - - - - - - - - - - - - - - - -
-    def _ndbKey(self, *args, **kwargs):
-        # this try except clause is needed for NDB issue 143
-        # https://code.google.com/p/appengine-ndb-experiment/issues/detail?id=143
-        try:
-            key = ndb.Key(**kwargs)
-        except Exception as e:
-            if e.__class__.__name__ == 'ProtocolBufferDecodeError':
-                key = 'Invalid Key'
-        return key
-
-    def _checkKey(self, key, websafeKey, kind):
-        '''Check that key exists and is the right Kind'''
-        if key == 'Invalid Key':
-            raise endpoints.NotFoundException(
-                'Invalid key: %s' % websafeKey)
-
-        if not key:
-            raise endpoints.NotFoundException(
-                'No %s found with key: %s' % (kind, websafeKey))
-
-        if key.kind() != kind:
-            raise endpoints.NotFoundException(
-                'Not a key of the %s Kind: %s' % (kind, websafeKey))
-
-    def _copySessionToForm(self, session, displayName):
-        """Copy relevant fields from Session to SessionForm."""
-        sf = ConferenceForm()
-        for field in sf.all_fields():
-            if hasattr(session, field.name):
-                # convert Date to date string; just copy others
-                if field.name.endswith('Date'):
-                    setattr(sf, field.name, str(getattr(session, field.name)))
-                else:
-                    setattr(sf, field.name, getattr(session, field.name))
-            elif field.name == "websafeKey":
-                setattr(sf, field.name, session.key.urlsafe())
-        if displayName:
-            setattr(sf, 'organizerDisplayName', displayName)
-        sf.check_initialized()
-        return sf
-
-    def _createSessionObject(self, request):
-        """Create or update Session object, returning SessionForm/request."""
-        # preload necessary data items
-        user = endpoints.get_current_user()
-        if not user:
-            raise endpoints.UnauthorizedException('Authorization required')
-        user_id = getUserId(user)
-
-        if not request.name:
-            raise endpoints.BadRequestException("Session 'name' field required")
-
-        # copy SessionForm/ProtoRPC Message into dict
-        data = {field.name: getattr(request, field.name) for field in request.all_fields()}
-        del data['websafeConferenceKey']
-        del data['websafeKey']
-
-        # add default values for those missing (both data model & outbound Message)
-        for df in DEFAULTS:
-            if data[df] in (None, []):
-                data[df] = DEFAULTS[df]
-                setattr(request, df, DEFAULTS[df])
-
-        # check if user logged in is the same as conference organizer
-        conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
-
-        if user_id != conf.organizerUserId:
-            raise endpoints.ForbiddenException(
-                'Only the conference organizer can create sessions.')
-
-        # check to see if the actual conf.key exists
-        self._checkKey(conf.key, request.websafeConferenceKey, 'Conference')
-
-        # get the conference ID
-        c_id = conf.key.id()
-
-        # convert dates from strings to Date objects; set month based on start_date
-        if data['Date']:
-            data['Date'] = datetime.strptime(data['startDate'][:10], "%Y-%m-%d").date()
-
-        # convert time from string
-        try:
-            data['startTime'] = datetime.strptime(data['startTime'], '%H:%M').time()
-        except Exception:
-            raise ValueError("'startTime' needed: '%H:%M' ")
-
-        # generate Profile Key based on user ID and Session
-        # ID based on Conference key get Session key from ID
-        c_key = ndb.Key(Conference, c_id)
-        s_id = Session.allocate_ids(size=1, parent=c_key)[0]
-        s_key = ndb.Key(Session, s_id, parent=c_key)
-
-        data['sessionKey'] = s_key
-        data['organizerUserId'] = request.organizerUserId = user_id
-
-        # create session
-        Session(**data).put()
-
-        return request
-
-    @endpoints.method(SessionForm, SessionForm, path='session',
-                      http_method='POST', name='createSession')
-    def createSession(self, request):
-        """Create new session."""
-        return self._createSessionObject(request)
-
 # - - - Profile objects - - - - - - - - - - - - - - - - - - -
 
     def _copyProfileToForm(self, prof):
@@ -608,6 +501,89 @@ class ConferenceApi(remote.Service):
         """Unregister user for selected conference."""
         return self._conferenceRegistration(request, reg=False)
 
+    # - - - Sessions Object- - - - - - - - - - - - - - - - - - -
+
+    def _copySessionToForm(self, session, displayName):
+        """Copy relevant fields from Session to SessionForm."""
+        sf = SessionForm()
+        for field in sf.all_fields():
+            if hasattr(session, field.name):
+                # convert date and time form string
+                startDateTime = getattr(session, 'startDateTime')
+                if startDateTime:
+                    if field.name == 'Date':
+                        setattr(sf, field.name, str(startDateTime.date()))
+                    if hasattr(session, 'startDateTime') and field.name == 'startTime':
+                        setattr(sf, field.name, str(startDateTime.time().strftime('%H:%M')))
+            elif field.name == "websafeKey":
+                setattr(sf, field.name, session.key.urlsafe())
+            elif field.name == "speakerDisplayName":
+                setattr(sf, field.name, displayName)
+
+        sf.check_initialized()
+        return sf
+
+    def _createSessionObject(self, request):
+        """Create or update Session object, returning SessionForm/request."""
+        # preload necessary data items
+        user = endpoints.get_current_user()
+        if not user:
+            raise endpoints.UnauthorizedException('Authorization required')
+        user_id = getUserId(user)
+
+        if not request.name:
+            raise endpoints.BadRequestException("Session 'name' field required")
+
+        # copy SessionForm/ProtoRPC Message into dict
+        data = {field.name: getattr(request, field.name) for field in request.all_fields()}
+        del data['websafeConferenceKey']
+        del data['websafeKey']
+
+        # add default values for those missing (both data model & outbound Message)
+        for df in DEFAULTS:
+            if data[df] in (None, []):
+                data[df] = DEFAULTS[df]
+                setattr(request, df, DEFAULTS[df])
+
+        # check if user logged in is the same as conference organizer
+        conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
+
+        if user_id != conf.organizerUserId:
+            raise endpoints.ForbiddenException(
+                'Only the conference organizer can create sessions.')
+
+        # get the conference ID
+        c_id = conf.key.id()
+
+        # convert dates from strings to Date objects; set month based on start_date
+        if data['Date']:
+            data['Date'] = datetime.strptime(data['startDate'][:10], "%Y-%m-%d").date()
+
+        # convert time from string
+        try:
+            data['startTime'] = datetime.strptime(data['startTime'], '%H:%M').time()
+        except Exception:
+            raise ValueError("'startTime' needed: '%H:%M' ")
+
+        # generate Profile Key based on user ID and Session
+        # ID based on Conference key get Session key from ID
+        c_key = ndb.Key(Conference, c_id)
+        s_id = Session.allocate_ids(size=1, parent=c_key)[0]
+        s_key = ndb.Key(Session, s_id, parent=c_key)
+
+        data['sessionKey'] = s_key
+        data['organizerUserId'] = request.organizerUserId = user_id
+
+        # create session
+        Session(**data).put()
+
+        return request
+
+    @endpoints.method(SessionForm, SessionForm, path='session',
+                      http_method='POST', name='createSession')
+    def createSession(self, request):
+        """Create new session."""
+        return self._createSessionObject(request)
 
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -
 
