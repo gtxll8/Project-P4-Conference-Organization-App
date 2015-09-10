@@ -553,15 +553,15 @@ class ConferenceApi(remote.Service):
         data = {field.name: getattr(request, field.name) for field in request.all_fields()}
         del data['websafeConferenceKey']
 
-        # check if user logged in is the same as conference organizer
+        # get conference data
         conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
-
+        # check if conference exist
+        if not conf:
+            raise endpoints.NotFoundException('No conference found.')
+        # check if user logged in is the same as conference organizer
         if user_id != conf.organizerUserId:
             raise endpoints.ForbiddenException(
                 'Only the conference organizer can create sessions.')
-
-        # get the conference ID
-        c_id = conf.key.id()
 
         # convert dates from strings to Date objects; set month based on start_date
         if data['Date']:
@@ -572,6 +572,8 @@ class ConferenceApi(remote.Service):
             data['startTime'] = datetime.strptime(data['startTime'], '%H:%M').time()
         except Exception:
             raise ValueError("'startTime' needed: '%H:%M' ")
+
+
 
         s_id = Session.allocate_ids(size=1, parent=conf.key)[0]
         s_key = ndb.Key(Session, s_id, parent=conf.key)
