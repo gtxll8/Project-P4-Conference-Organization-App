@@ -573,10 +573,10 @@ class ConferenceApi(remote.Service):
         # creation of Session & return (modified) SessionForm
         new_key = Session(**data).put()
 
-        taskqueue.add(params={'conferenceKey': request.websafeConferenceKey,
-            'speaker': data['speaker']},
-            url='/tasks/get_featured_speaker'
-        )
+        #taskqueue.add(params={'conferenceKey': request.websafeConferenceKey,
+        #    'speaker': data['speaker']},
+        #    url='/tasks/get_featured_speaker'
+        #)
 
         request.sessionKey = new_key.urlsafe()
         return self._copySessionToForm(request)
