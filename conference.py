@@ -535,6 +535,7 @@ class ConferenceApi(remote.Service):
         sf.check_initialized()
         return sf
 
+    # get all sessions belonging to a conference using its key
     def _getSessions(self, webSafeKey):
         """Get all sessions from a conference."""
         confkey = ndb.Key(urlsafe=webSafeKey)
