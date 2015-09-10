@@ -552,7 +552,6 @@ class ConferenceApi(remote.Service):
         # copy SessionForm/ProtoRPC Message into dict
         data = {field.name: getattr(request, field.name) for field in request.all_fields()}
         del data['websafeConferenceKey']
-        del data['websafeKey']
 
         # check if user logged in is the same as conference organizer
         conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
