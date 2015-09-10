@@ -573,11 +573,9 @@ class ConferenceApi(remote.Service):
         except Exception:
             raise ValueError("'startTime' needed: '%H:%M' ")
 
-        # generate Profile Key based on user ID and Session
-        # ID based on Conference key get Session key from ID
-        c_key = ndb.Key(Conference, c_id)
-        s_id = Session.allocate_ids(size=1, parent=c_key)[0]
-        s_key = ndb.Key(Session, s_id, parent=c_key)
+        s_id = Session.allocate_ids(size=1, parent=conf.key)[0]
+        s_key = ndb.Key(Session, s_id, parent=conf.key)
+        data['key'] = s_key
         data['sessionKey'] = s_key
 
         sess = Session(**data)
