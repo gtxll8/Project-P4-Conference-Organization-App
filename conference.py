@@ -582,12 +582,6 @@ class ConferenceApi(remote.Service):
         if data['Date']:
             data['Date'] = datetime.strptime(data['startDate'][:10], "%Y-%m-%d").date()
 
-        # convert time from string
-        try:
-            data['startTime'] = datetime.strptime(data['startTime'], '%H:%M').time()
-        except Exception:
-            raise ValueError("'startTime' needed: '%H:%M' ")
-
         s_id = Session.allocate_ids(size=1, parent=conf.key)[0]
         s_key = ndb.Key(Session, s_id, parent=conf.key)
         data['key'] = s_key
