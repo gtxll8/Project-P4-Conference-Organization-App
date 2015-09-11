@@ -22,6 +22,7 @@ from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 from google.appengine.ext import ndb
 
+from models import MultiStringMessage
 from models import ConflictException
 from models import Profile
 from models import ProfileMiniForm
@@ -622,6 +623,27 @@ class ConferenceApi(remote.Service):
         return SessionForms(
             items=[self._copySessionToForm(sess) for sess in sessions]
         )
+# - - - - -  Get all the speakers for a given conference - - - -
+
+    @endpoints.method(CONF_GET_REQUEST, MultiStringMessage,
+                path='bla/{websafeConferenceKey}',
+                http_method='GET', name='getConferenceSpeakers')
+    def getConferenceSpeakers(self, request):
+        """Return all speakers of a conference (by websafeConferenceKey)."""
+        sessions = self._getSessions(
+            request.websafeConferenceKey).fetch(projection=[Session.speakers])
+
+        # Use a Python set to remove duplicates among speaker keys.
+        unique_sp = set([sp for sess in sessions for sp in
+                        sess.speakers])
+
+        # Retrieve speaker objects from keys and return them.
+        speakers = ndb.get_multi((ndb.Key(urlsafe=k) for k in unique_sp))
+        return MultiStringMessage(data=[sp.name for sp in speakers])
+
+
+
+
 
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -
 
