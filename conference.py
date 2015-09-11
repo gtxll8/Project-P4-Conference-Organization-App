@@ -693,10 +693,9 @@ class ConferenceApi(remote.Service):
         profile.sessionWishlist.append(request.websafeSessionKey)
         profile.put()
 
-        session_names = [s.name for s in
-                         ndb.get_multi(profile.sessionWishlist)]
+        sessionlist = [s.name for s in ndb.get_multi(profile.sessionWishlist)]
 
-        return MultiStringMessage(data=session_names)
+        return MultiStringMessage(data=sessionlist)
 
 # - - - - - Get all the user whishlist - - - - - - - - - - -
 
@@ -715,11 +714,9 @@ class ConferenceApi(remote.Service):
         p_key = ndb.Key(Profile, user_id)
         profile = p_key.get()
 
-        wish_keys = [ndb.Key(urlsafe=wsck) for wsck in
-                     profile.sessionWishlist]
+        wish_list_keys = [ndb.Key(urlsafe=wsck) for wsck in profile.sessionWishlist]
 
-        sessionlist = [s.name for s in
-                         ndb.get_multi(wish_keys)]
+        sessionlist = [s.name for s in ndb.get_multi(wish_list_keys)]
 
         return MultiStringMessage(data=sessionlist)
 
