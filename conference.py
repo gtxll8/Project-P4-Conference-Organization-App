@@ -679,7 +679,10 @@ class ConferenceApi(remote.Service):
         if not user:
             raise endpoints.UnauthorizedException('Authorization required')
 
-        profile = self._getProfileFromUser
+        # get Profile from datastore
+        user_id = getUserId(user)
+        p_key = ndb.Key(Profile, user_id)
+        profile = p_key.get()
 
         # Check if session was already added.
         if request.websafeSessionKey in profile.sessionWishlist:
@@ -707,7 +710,10 @@ class ConferenceApi(remote.Service):
         if not user:
             raise endpoints.UnauthorizedException('Authorization required')
 
-        profile = self._getProfileFromUser
+        # get Profile from datastore
+        user_id = getUserId(user)
+        p_key = ndb.Key(Profile, user_id)
+        profile = p_key.get()
 
         wish_keys = [ndb.Key(urlsafe=wsck) for wsck in
                      profile.sessionWishlist]
