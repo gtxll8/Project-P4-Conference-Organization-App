@@ -693,7 +693,9 @@ class ConferenceApi(remote.Service):
         profile.sessionWishlist.append(request.websafeSessionKey)
         profile.put()
 
-        sessionlist = [s.name for s in ndb.get_multi(profile.sessionWishlist)]
+        wish_list_keys = [ndb.Key(urlsafe=wsck) for wsck in profile.sessionWishlist]
+
+        sessionlist = [s.name for s in ndb.get_multi(wish_list_keys)]
 
         return MultiStringMessage(data=sessionlist)
 
