@@ -715,12 +715,10 @@ class ConferenceApi(remote.Service):
         wish_keys = [ndb.Key(urlsafe=wsck) for wsck in
                      profile.sessionWishlist]
 
-        session_names = [s.name for s in
+        sessionlist = [s.name for s in
                          ndb.get_multi(wish_keys)]
 
-        return SessionForms(
-            items=[self._copySessionToForm(ndb.Key(urlsafe=session).get()) for session in session_names]
-        )
+        return MultiStringMessage(data=sessionlist)
 
 
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -
