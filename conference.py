@@ -90,6 +90,11 @@ SESSION_POST_REQUEST = endpoints.ResourceContainer(
     websafeConferenceKey=messages.StringField(1),
 )
 
+SESSION_TYPE_GET_REQUEST = endpoints.ResourceContainer(
+    message_types.VoidMessage,
+    websafeConferenceKey=messages.StringField(1),
+    sessionType=messages.StringField(2),
+)
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
@@ -545,7 +550,7 @@ class ConferenceApi(remote.Service):
         if not request.name:
             raise endpoints.BadRequestException("Session 'name' field required")
 
-        # check the user is owner of conference
+        # check the user is the owner of the conference
         user_id = getUserId(user)
         conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
         if user_id != conf.organizerUserId:
@@ -562,7 +567,7 @@ class ConferenceApi(remote.Service):
         try:
             data['startDate'] = datetime.strptime(data['startDate'][:10], "%Y-%m-%d").date()
         except Exception:
-            raise ValueError("'startDate' needed. Cannot be void or in the wrong format (year-month-day)")
+            raise ValueError("'startDate' required in this format (year-month-day)")
 
         try:
             data['startTime'] = datetime.strptime(data['startTime'], '%H:%M').time()
@@ -573,28 +578,24 @@ class ConferenceApi(remote.Service):
         try:
             data['duration'] = int(data['duration'])
         except Exception:
-            raise ValueError("'duration' needed. Has to be an integer (minutes) and cannot be void")
+            raise ValueError("'duration' required and has to be a number.")
 
-        # creation of Session & return (modified) SessionForm
+        # creation of Session and return SessionForm
         new_key = Session(**data).put()
-
-        #taskqueue.add(params={'conferenceKey': request.websafeConferenceKey,
-        #    'speaker': data['speaker']},
-        #    url='/tasks/get_featured_speaker'
-        #)
 
         request.sessionKey = new_key.urlsafe()
         return self._copySessionToForm(request)
 
-    # get all sessions belonging to a conference using its key
+    # get all sessions belonging to a conference using a conference key
     def _getSessions(self, webSafeKey):
         """Get all sessions from a conference."""
         confkey = ndb.Key(urlsafe=webSafeKey)
         # check if this key belongs to an actual conference
         if not confkey:
-            raise endpoints.NotFoundException('No conference found.')
+            raise endpoints.NotFoundException('No conference found with this key.')
 
-        # retrieve all sessions from ancestor conferences
+        # retrieve all sessions from ancestor conferences, using
+        # an ndb class method to do the actual query - faster
         return Session.get_session_by_conferencekey(confkey)
 
     @endpoints.method(SESSION_POST_REQUEST, SessionForm, path='session/create/{websafeConferenceKey}',
@@ -621,6 +622,18 @@ class ConferenceApi(remote.Service):
         )
 # - - - - -  Get all the speakers for a given conference - - - -
 
+    @endpoints.method(SESSION_TYPE_GET_REQUEST, SessionForms,
+                      path='session/{websafeConferenceKey}/{sessionType}',
+                      http_method='GET', name='getConferenceSessionsByType')
+    def getConferenceSessionsByType(self, request):
+            """Return all sessions of a particular type."""
+            all_sessions = self._getSessions(request.websafeConferenceKey)
+            type_sessions = all_sessions.filter(Session.typeOfSession ==
+                                                request.sessionType)
+
+            return SessionForms(
+                items=[self._copySessionToForm(sess) for sess in type_sessions]
+            )
 
 
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -

@@ -12,8 +12,6 @@ created/forked from conferences.py by wesc on 2014 may 24
 
 __author__ = 'wesc+api@google.com (Wesley Chun)'
 
-sessiontypes = ['workshop', 'keynotes', 'breakout']
-
 import httplib
 import endpoints
 from protorpc import messages
