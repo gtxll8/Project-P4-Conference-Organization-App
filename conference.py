@@ -693,7 +693,10 @@ class ConferenceApi(remote.Service):
         profile.sessionWishlist.append(request.websafeSessionKey)
         profile.put()
 
-        return BooleanMessage(data=True)
+        session_names = [s.name for s in
+                         ndb.get_multi(profile.sessionWishlist)]
+
+        return MultiStringMessage(data=session_names)
 
 # - - - - - Get all the user whishlist - - - - - - - - - - -
 
