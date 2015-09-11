@@ -648,8 +648,10 @@ class ConferenceApi(remote.Service):
                       path='session/{speaker}',
                       http_method='GET', name='getSessionsBySpeaker')
     def getSessionsBySpeaker(self, request):
-            """Return all sessions featuring a speaker."""
+            """Return all sessions featuring a speaker's name."""
 
+            # not using the ndb classmethod this time,
+            # select all sessions and filter by speaker
             sessions = Session.query()
             if request.speaker:
                 sessions = sessions.filter(Session.speaker == request.speaker)
