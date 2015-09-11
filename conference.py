@@ -605,7 +605,7 @@ class ConferenceApi(remote.Service):
             http_method='GET', name='getConferenceSessions')
     def getConferenceSessions(self, request):
         """Given a conference, return all sessions (by websafeConferenceKey)."""
-        sessions = self._get_sessions_in_a_conference(request.websafeConferenceKey).fetch()
+        sessions = self._getSessions(request.websafeConferenceKey).fetch()
         if not sessions:
             return SessionForms(
                 items=[]
