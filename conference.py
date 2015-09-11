@@ -22,6 +22,7 @@ from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 from google.appengine.ext import ndb
 
+from models import MultiStringMessage
 from models import ConflictException
 from models import Profile
 from models import ProfileMiniForm
@@ -101,6 +102,10 @@ SPEAKER_SESSIONS_GET_REQUEST = endpoints.ResourceContainer(
     speaker=messages.StringField(1),
 )
 
+WISHLIST_POST_REQUEST = endpoints.ResourceContainer(
+    message_types.VoidMessage,
+    websafeSessionKey=messages.StringField(1),
+)
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
@@ -660,6 +665,58 @@ class ConferenceApi(remote.Service):
             return SessionForms(
                 items=[self._copySessionToForm(sess) for sess in sessions]
             )
+
+# - - - - -  Add sessions to user wish list - - - - - - - - - -
+
+    @endpoints.method(WISHLIST_POST_REQUEST, MultiStringMessage,
+                      path='wishlist/{websafeSessionKey}',
+                      http_method='POST', name='addSessionToWishlist')
+    def addSessionToWishlist(self, request):
+        """Adds the session to the current user's wishlist."""
+
+        # check if user is logged in
+        user = endpoints.get_current_user()
+        if not user:
+            raise endpoints.UnauthorizedException('Authorization required')
+
+        profile = self._getProfileFromUser(makeNew=False)
+
+        # Check if session was already added.
+        if request.websafeSessionKey in profile.sessionWishlist:
+            raise ConflictException(
+                "This session is already on your wishlist.")
+
+        # Add session to wishlist.
+        profile.sessionWishlist.append(request.websafeSessionKey)
+        profile.put()
+
+        session_names = [s.name for s in
+                         ndb.get_multi(profile.sessionWishlist)]
+
+        return MultiStringMessage(data=session_names)
+
+# - - - - - Get all the user whishlist - - - - - - - - - - -
+
+    @endpoints.method(message_types.VoidMessage, MultiStringMessage,
+                      http_method='GET', name='getSessionsInWishlist')
+    def getSessionsInWishlist(self, request):
+        """Get all sessions from the user's wishlist."""
+
+        # check if user is logged in
+        user = endpoints.get_current_user()
+        if not user:
+            raise endpoints.UnauthorizedException('Authorization required')
+
+        profile = self._getProfileFromUser(makeNew=False)
+
+        wish_keys = [ndb.Key(urlsafe=wsck) for wsck in
+                     profile.sessionWishlist]
+
+        session_names = [s.name for s in
+                         ndb.get_multi(wish_keys)]
+
+        return MultiStringMessage(data=session_names)
+
 
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -
 
