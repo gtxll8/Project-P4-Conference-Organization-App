@@ -604,13 +604,15 @@ class ConferenceApi(remote.Service):
         # an ndb class method actual query is faster
         return Session.get_session_by_conferencekey(confkey)
 
+# - - - Create a session - - - - - - - - - - - - - - - - -
+
     @endpoints.method(SESSION_POST_REQUEST, SessionForm, path='session/create/{websafeConferenceKey}',
                       http_method='POST', name='createSession')
     def createSession(self, request):
         """Create new session."""
         return self._createSessionObject(request)
 
-# - - - Get all sessions from a conference - - - - - - - - -
+# - - - Get all sessions from a given conference - - - - - - - - -
 
     @endpoints.method(SESSION_GET_REQUEST, SessionForms,
             path='sessions/{websafeConferenceKey}',
@@ -627,7 +629,7 @@ class ConferenceApi(remote.Service):
             items=[self._copySessionToForm(session) for session in sessions]
         )
 
-# - - - - -  Given a conference return a specific type ( lecture, workshop etc. )- - - -
+# - - - - -  Given a conference return a specific session type ( lecture, workshop etc. )- - - -
 
     @endpoints.method(SESSION_TYPE_GET_REQUEST, SessionForms,
                       path='session/{websafeConferenceKey}/{sessionType}',
