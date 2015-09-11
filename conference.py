@@ -631,11 +631,11 @@ class ConferenceApi(remote.Service):
     def getConferenceSpeakers(self, request):
         """Return all speakers of a conference (by websafeConferenceKey)."""
         sessions = self._getSessions(
-            request.websafeConferenceKey).fetch(projection=[Session.speakers])
+            request.websafeConferenceKey).fetch(projection=[Session.speaker])
 
         # Use a Python set to remove duplicates among speaker keys.
         unique_sp = set([sp for sess in sessions for sp in
-                        sess.speakers])
+                        sess.speaker])
 
         # Retrieve speaker objects from keys and return them.
         speakers = ndb.get_multi((ndb.Key(urlsafe=k) for k in unique_sp))
