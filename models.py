@@ -86,6 +86,10 @@ class Session(ndb.Model):
     startTime       = ndb.TimeProperty()
     conference = ndb.KeyProperty(kind='Conference')
 
+    @classmethod
+    def get_session_by_conferencekey(cls, confwebsafekey):
+        return cls.query(cls.conference == confwebsafekey)
+
 class SessionForm(messages.Message):
     """SessionForm -- Session outbound form message"""
     name            = messages.StringField(1)

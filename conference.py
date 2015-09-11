@@ -590,8 +590,7 @@ class ConferenceApi(remote.Service):
             raise endpoints.NotFoundException('No conference found.')
 
         # retrieve all sessions from ancestor conferences
-        sessions = Session.query(ancestor=confkey)
-        return sessions
+        return Session.get_session_by_conferencekey(confkey)
 
     @endpoints.method(SESSION_POST_REQUEST, SessionForm, path='session/create/{websafeConferenceKey}',
                       http_method='POST', name='createSession')
@@ -599,28 +598,21 @@ class ConferenceApi(remote.Service):
         """Create new session."""
         return self._createSessionObject(request)
 
-# - - - Get all sessions from a conference - - - - -  - - - -
+# - - - Get all sessions from a conference - - - - - - - - -
 
-    # getConferenceSessions(websafeConferenceKey) -- Given a conference, return all sessions
-    @endpoints.method(CONF_GET_REQUEST, SessionForms,
-            path='conferenceSessions/{websafeConferenceKey}',
+    @endpoints.method(SESSION_GET_REQUEST, SessionForms,
+            path='sessions/{websafeConferenceKey}',
             http_method='GET', name='getConferenceSessions')
     def getConferenceSessions(self, request):
-        """Return requested conference sessions (by websafeConferenceKey)."""
-        # get Conference object from request; bail if not found
-        conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
-        if not conf:
-            raise endpoints.NotFoundException(
-                'No conference found with key: %s' % request.websafeConferenceKey)
-
-        conf_id = conf.key.id()
-
-        # return SessionForms
-        sessions = Session.query(ancestor=ndb.Key(Conference, conf_id))
-
-        # return set of ConferenceForm objects per Conference
+        """Given a conference, return all sessions (by websafeConferenceKey)."""
+        sessions = self._get_sessions_in_a_conference(request.websafeConferenceKey).fetch()
+        if not sessions:
+            return SessionForms(
+                items=[]
+            )
+        # return SessionForm
         return SessionForms(
-            items=[self._copySessionToForm(sess) for sess in sessions]
+            items=[self._copySessionToForm(session) for session in sessions]
         )
 # - - - - -  Get all the speakers for a given conference - - - -
 
