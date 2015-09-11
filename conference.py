@@ -603,13 +603,22 @@ class ConferenceApi(remote.Service):
 
     # getConferenceSessions(websafeConferenceKey) -- Given a conference, return all sessions
     @endpoints.method(SESSION_GET_REQUEST, SessionForms,
-                      path='session/{websafeConferenceKey}',
-                      http_method='GET', name='getConferenceSessions')
+            path='conferenceSessions/{websafeConferenceKey}',
+            http_method='GET', name='getConferenceSessions')
     def getConferenceSessions(self, request):
-        """Return all sessions of a conference."""
-        sessions = self._getSessions(request.websafeConferenceKey)
+        """Return requested conference sessions (by websafeConferenceKey)."""
+        # get Conference object from request; bail if not found
+        conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
+        if not conf:
+            raise endpoints.NotFoundException(
+                'No conference found with key: %s' % request.websafeConferenceKey)
 
-        # Return set of SessionForm objects per Session.
+        conf_id = conf.key.id()
+
+        # return SessionForms
+        sessions = Session.query(ancestor=ndb.Key(Conference, conf_id))
+
+        # return set of ConferenceForm objects per Conference
         return SessionForms(
             items=[self._copySessionToForm(sess) for sess in sessions]
         )
