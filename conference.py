@@ -733,7 +733,7 @@ class ConferenceApi(remote.Service):
 # - - - - - - - - - - Extra queries - - - - - - - - - - - - -
 
     @endpoints.method(SESSION_START_TIME_GET_REQUEST, SessionForms,
-                      path='session/{websafeConferenceKey}/{startTime}',
+                      path='session/{websafeConferenceKey}/by/{startTime}',
                       http_method='GET', name='getConferenceSessionsByStartTime')
     def getConferenceSessionsByStartTime(self, request):
             """Return all sessions of a particular type."""
