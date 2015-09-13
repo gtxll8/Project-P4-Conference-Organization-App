@@ -736,10 +736,17 @@ class ConferenceApi(remote.Service):
                       path='session/{websafeConferenceKey}/by/{startTime}',
                       http_method='GET', name='getConferenceSessionsByStartTime')
     def getConferenceSessionsByStartTime(self, request):
-            """Return all sessions of a particular type."""
+            """Return all sessions for a conference by start time."""
+
+            try:
+                start_time = datetime.strptime(request.startTime, '%H:%M').time()
+
+            # if time value is formatted wrongly
+            except Exception:
+               raise ValueError("'startTime' needed: '%H:%M' ")
+
             all_sessions = self._getSessions(request.websafeConferenceKey)
-            start_time_sessions = all_sessions.filter(Session.startTime >=
-                                                datetime.strptime(request.startTime, '%H:%M').time())
+            start_time_sessions = all_sessions.filter(Session.startTime >= start_time)
 
             return SessionForms(
                 items=[self._copySessionToForm(sess) for sess in start_time_sessions]
