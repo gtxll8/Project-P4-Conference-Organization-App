@@ -106,6 +106,13 @@ WISHLIST_POST_REQUEST = endpoints.ResourceContainer(
     message_types.VoidMessage,
     websafeSessionKey=messages.StringField(1),
 )
+
+SESSION_START_TIME_GET_REQUEST = endpoints.ResourceContainer(
+    message_types.VoidMessage,
+    websafeConferenceKey=messages.StringField(1),
+    startTime=messages.StringField(2),
+)
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
@@ -518,7 +525,6 @@ class ConferenceApi(remote.Service):
     def getConference(self, request):
         """Return requested conference (by websafeConferenceKey)."""
         # Get Conference object from request; bail if not found.
-        # get Conference object from request; bail if not found
         conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
         if not conf:
             raise endpoints.NotFoundException(
@@ -723,6 +729,21 @@ class ConferenceApi(remote.Service):
         sessionlist = [s.name for s in ndb.get_multi(wish_list_keys)]
 
         return MultiStringMessage(data=sessionlist)
+
+# - - - - - - - - - - Extra queries - - - - - - - - - - - - -
+
+    @endpoints.method(SESSION_START_TIME_GET_REQUEST, SessionForms,
+                      path='session/{websafeConferenceKey}/{startTime}',
+                      http_method='GET', name='getConferenceSessionsByStartTime')
+    def getConferenceSessionsByStartTime(self, request):
+            """Return all sessions of a particular type."""
+            all_sessions = self._getSessions(request.websafeConferenceKey)
+            start_time_sessions = all_sessions.filter(Session.startTime >=
+                                                request.startTime)
+
+            return SessionForms(
+                items=[self._copySessionToForm(sess) for sess in start_time_sessions]
+            )
 
 
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -
