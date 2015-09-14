@@ -30,3 +30,7 @@ App Engine application for the Udacity training course.
 [4]: https://console.developers.google.com/
 [5]: https://localhost:8080/
 [6]: https://developers.google.com/appengine/docs/python/endpoints/endpoints_tool
+
+## Task 1 : Addd Session to a Conference
+
+This was implemnted using an explicit property 'conference', in this case I found this way to be simpler and clearer. 
