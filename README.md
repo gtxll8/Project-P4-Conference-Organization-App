@@ -31,6 +31,37 @@ App Engine application for the Udacity training course.
 [5]: https://localhost:8080/
 [6]: https://developers.google.com/appengine/docs/python/endpoints/endpoints_tool
 
-## Task 1 : Addd Session to a Conference
+## Task 1 : Add Session to a Conference
 
-This was implemnted using an explicit property 'conference', in this case I found this way to be simpler and clearer. 
+This was implemnted using an explicit property 'conference', in this case I found this way to be simpler and clearer. Session class has all the requirements : Session name, highlights, speaker, duration, typeOfSession, startDate and startTime ( 24H format ). I have used various method to fetch data from ndb, I have implemented a clasmethod and also explicit code for queries in all the app's endpoints. Speaker has been implemented as a simple string.
+
+## Task 2 : Add Sessions to User Wishlist
+
+I have added a property to user's profile object : 'sessionWishlist', a reapeated string to store every session key, user can also add any session to the interest list regardless if he's registered for the conference or not.
+API reference : addSessionToWishlist(SessionKey) - will add a session key and getSessionsInWishlist() will retrieve the entire list of session keys.
+
+## Task 3 : Work omn indexes and queries
+
+I have added the follwing indexes to support two new type of queries required :
+
+   - kind: Session
+  properties:
+  - name: conference
+  - name: highlights
+
+- kind: Session
+  properties:
+  - name: typeOfSession
+  - name: startTime
+
+Problem query related problem :
+ - the problem in this case is that datastore API does not alow inequality filters on two different properties, as in our case startTimeand sessiionType.
+ - a workaround would be to use datastore to do the query on the first inequality and the post filter the result, as implemnted in : getSessionsCustomRequest
+ '' # first query select all sessions with inequality filter
+            sessions_type_filtered = Session.query(Session.typeOfSession != request.excludeSessionType)
+            # iterate through the results and look apply second inequality filter
+            sessions_qualified = [t for t in sessions_type_filtered if t.startTime >= start_time]
+''
+ 
+
+
