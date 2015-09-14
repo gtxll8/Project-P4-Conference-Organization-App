@@ -783,7 +783,7 @@ class ConferenceApi(remote.Service):
                       path='session/by/{excludeSessionType}/and/{startTime}',
                       http_method='GET', name='getSessionsCustomRequest')
     def getSessionsCustomRequest(self, request):
-            """Return all sessions excluding certain type and the start time is after a given time."""
+            """Return all sessions excluding certain type and specific start time"""
 
             # check time string formatting
             try:
