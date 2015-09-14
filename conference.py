@@ -792,11 +792,11 @@ class ConferenceApi(remote.Service):
             # if time value is formatted wrongly
             except Exception:
                 raise endpoints.BadRequestException("'startTime' needed in this format: '%H:%M' ")
-
+            # first query select all sessions with inequality filter
             sessions_type_filtered = Session.query(Session.typeOfSession != request.excludeSessionType)
-
+            # iterate through the results and look apply second inequality filter
             sessions_qualified = [t for t in sessions_type_filtered if t.startTime >= start_time]
-
+            # display results
             return SessionForms(
                 items=[self._copySessionToForm(sess) for sess in sessions_qualified]
             )
