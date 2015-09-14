@@ -795,7 +795,7 @@ class ConferenceApi(remote.Service):
 
             sessions_type_filtered = Session.query(Session.typeOfSession != request.excludeSessionType)
 
-            sessions_qualified = [t for t in sessions_type_filtered if t.startTime <= start_time]
+            sessions_qualified = [t for t in sessions_type_filtered if t.startTime >= start_time]
 
             return SessionForms(
                 items=[self._copySessionToForm(sess) for sess in sessions_qualified]
