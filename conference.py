@@ -800,6 +800,18 @@ class ConferenceApi(remote.Service):
             return SessionForms(
                 items=[self._copySessionToForm(sess) for sess in sessions_qualified]
             )
+# - - - - - - - - - Add a task queue when more than one session with same speaker - - - - -
+
+    @endpoints.method(message_types.VoidMessage, StringMessage,
+            path='getFeaturedSpeaker',
+            http_method='GET', name='getFeaturedSpeaker')
+    def getFeaturedSpeaker(self, request):
+        """Return Announcement from memcache."""
+        # return an existing announcement from Memcache or an empty string.
+        announcement = memcache.get(MEMCACHE_ANNOUNCEMENTS_KEY)
+        if not announcement:
+            announcement = ""
+        return StringMessage(data=announcement)
 
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -
 
@@ -835,7 +847,6 @@ class ConferenceApi(remote.Service):
             http_method='GET', name='getAnnouncement')
     def getAnnouncement(self, request):
         """Return Announcement from memcache."""
-        # TODO 1
         # return an existing announcement from Memcache or an empty string.
         announcement = memcache.get(MEMCACHE_ANNOUNCEMENTS_KEY)
         if not announcement:
