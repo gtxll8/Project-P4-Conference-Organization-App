@@ -118,6 +118,13 @@ SESSION_HIGHLIGHTS_GET_REQUEST = endpoints.ResourceContainer(
     websafeConferenceKey=messages.StringField(1),
     highlights=messages.StringField(2),
 )
+
+
+CUSTOM_SESSION_GET_REQUEST = endpoints.ResourceContainer(
+    message_types.VoidMessage,
+    sessionType=messages.StringField(1),
+    startTime=messages.StringField(2),
+)
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
@@ -735,7 +742,7 @@ class ConferenceApi(remote.Service):
 
         return MultiStringMessage(data=sessionlist)
 
-# - - - - - - - - - - Extra queries - - - - - - - - - - - - -
+# - - - - - - - - - - 2 Extra queries - - - - - - - - - - - - -
 
     @endpoints.method(SESSION_START_TIME_GET_REQUEST, SessionForms,
                       path='session/{websafeConferenceKey}/by/{startTime}',
@@ -769,6 +776,31 @@ class ConferenceApi(remote.Service):
             return SessionForms(
                 items=[self._copySessionToForm(sess) for sess in start_time_sessions]
             )
+
+# - - - - - - - - - Non workshop sessions starting after 7PM - - - - - - - - - - - -
+
+    @endpoints.method(CUSTOM_SESSION_GET_REQUEST, SessionForms,
+                      path='session/by/{sessionType}/and/{startTime}',
+                      http_method='GET', name='getSessionsCustomRequest')
+    def getSessionsCustomRequest(self, request):
+            """Return all sessions od certain type and start time is after a given time."""
+
+            # check time string formating
+            try:
+                start_time = datetime.strptime(request.startTime, '%H:%M').time()
+
+            # if time value is formatted wrongly
+            except Exception:
+                raise endpoints.BadRequestException("'startTime' needed in this format: '%H:%M' ")
+
+            sessions = Session.query()
+            sessions_qualified = sessions.filter(Session.typeOfSession == request.sessionType).filter(
+                Session.startTime >= request.startTime
+            )
+            return SessionForms(
+                items=[self._copySessionToForm(sess) for sess in sessions_qualified]
+            )
+
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -
 
     @staticmethod
