@@ -793,8 +793,7 @@ class ConferenceApi(remote.Service):
             except Exception:
                 raise endpoints.BadRequestException("'startTime' needed in this format: '%H:%M' ")
 
-            sessions = Session.query()
-            sessions_qualified = sessions.all().filter(Session.typeOfSession != request.excludeSessionType).filter(
+            sessions_qualified = Session.all().filter(Session.typeOfSession != request.excludeSessionType).filter(
                 Session.startTime >= start_time
             )
             return SessionForms(
