@@ -60,8 +60,8 @@ I have added the follwing indexes to support two new type of queries required :
   - name: startTime
 
 Problem query related problem :
- - the problem in this case is that datastore API does not alow inequality filters on two different properties, as in our case startTimeand sessiionType.
- - a workaround would be to use datastore to do the query on the first inequality and the post filter the result, as implemented in : getSessionsCustomRequest
+ - the problem in this case is that datastore API does not alow inequality filters on two different properties, as in our case startTime and sessionType.
+ - a workaround would be to use datastore to do the query on the first inequality and then post filter the result, as implemented in : getSessionsCustomRequest
  ```
 
             # first query select all sessions with inequality filter
@@ -71,7 +71,7 @@ Problem query related problem :
 ```
 ## Task 4 : Adding a task
 
-I have added a task to check when a speaker is added if he is also featured in other sessions on teh same conference, this will make an entry into the memcache.
+I have added a task to check when a speaker is added if he is also featured in other sessions on the same conference, this will make an entry into the memcache.
 
  
 
