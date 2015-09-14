@@ -45,7 +45,7 @@ from google.appengine.api import taskqueue
 EMAIL_SCOPE = endpoints.EMAIL_SCOPE
 API_EXPLORER_CLIENT_ID = endpoints.API_EXPLORER_CLIENT_ID
 MEMCACHE_ANNOUNCEMENTS_KEY = "RECENT_ANNOUNCEMENTS"
-
+FEATURED_SPEAKER_SESSIONS_KEY = "THIS_IS_A_FEATURED_SPEAKER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 DEFAULTS = {
@@ -802,16 +802,39 @@ class ConferenceApi(remote.Service):
             )
 # - - - - - - - - - Add a task queue when more than one session with same speaker - - - - -
 
+    @staticmethod
+    def _getFeaturedSpeaker(self, speaker, websafeConferenceKey):
+        """Create Announcement & assign to memcache; used by
+        memcache cron job & putAnnouncement().
+        """
+        all_sessions = self._getSessions(websafeConferenceKey)
+        # check to see if speaker is present already in other sessions
+        sessions = all_sessions.filter(Session.speaker == speaker)
+
+        if sessions:
+            announcement = '%s %s' % (
+                'This speaker is very popular '
+                'he is featured in these sessions:',
+                ', '.join(sess.name for sess in sessions))
+            memcache.set(FEATURED_SPEAKER_SESSIONS_KEY, announcement)
+        else:
+            # delete the memcache announcements entry
+            announcement = ""
+            memcache.delete(FEATURED_SPEAKER_SESSIONS_KEY)
+
+        return announcement
+
     @endpoints.method(message_types.VoidMessage, StringMessage,
-            path='getFeaturedSpeaker',
+            path='conference/getFeaturedSpeaker/',
             http_method='GET', name='getFeaturedSpeaker')
     def getFeaturedSpeaker(self, request):
         """Return Announcement from memcache."""
         # return an existing announcement from Memcache or an empty string.
-        announcement = memcache.get(MEMCACHE_ANNOUNCEMENTS_KEY)
+        announcement = memcache.get(FEATURED_SPEAKER_SESSIONS_KEY)
         if not announcement:
             announcement = ""
         return StringMessage(data=announcement)
+
 
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -
 
@@ -840,7 +863,6 @@ class ConferenceApi(remote.Service):
             memcache.delete(MEMCACHE_ANNOUNCEMENTS_KEY)
 
         return announcement
-
 
     @endpoints.method(message_types.VoidMessage, StringMessage,
             path='conference/announcement/get',
