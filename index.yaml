@@ -104,3 +104,8 @@ indexes:
   properties:
   - name: conference
   - name: startTime
+
+- kind: Session
+  properties:
+  - name: conference
+  - name: highlights
