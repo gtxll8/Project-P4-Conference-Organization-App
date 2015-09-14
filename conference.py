@@ -113,6 +113,11 @@ SESSION_START_TIME_GET_REQUEST = endpoints.ResourceContainer(
     startTime=messages.StringField(2),
 )
 
+SESSION_HIGHLIGHTS_GET_REQUEST = endpoints.ResourceContainer(
+    message_types.VoidMessage,
+    websafeConferenceKey=messages.StringField(1),
+    highlights=messages.StringField(2),
+)
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
@@ -752,7 +757,18 @@ class ConferenceApi(remote.Service):
                 items=[self._copySessionToForm(sess) for sess in start_time_sessions]
             )
 
+    @endpoints.method(SESSION_HIGHLIGHTS_GET_REQUEST, SessionForms,
+                      path='session/{websafeConferenceKey}/by/{highlights}',
+                      http_method='GET', name='getConferenceSessionsByHighlights')
+    def getConferenceSessionsByHighlights(self, request):
+            """Return all sessions for a conference by start time."""
 
+            all_sessions = self._getSessions(request.websafeConferenceKey)
+            start_time_sessions = all_sessions.filter(Session.highlights == highlights)
+
+            return SessionForms(
+                items=[self._copySessionToForm(sess) for sess in start_time_sessions]
+            )
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -
 
     @staticmethod
