@@ -37,7 +37,6 @@ from models import ConferenceQueryForm
 from models import ConferenceQueryForms
 from models import TeeShirtSize
 from utils import getUserId
-from settings import WEB_CLIENT_ID
 from google.appengine.api import memcache
 from models import StringMessage
 from google.appengine.api import taskqueue
