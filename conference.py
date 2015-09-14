@@ -42,6 +42,12 @@ from google.appengine.api import memcache
 from models import StringMessage
 from google.appengine.api import taskqueue
 
+
+from settings import WEB_CLIENT_ID
+from settings import ANDROID_CLIENT_ID
+from settings import IOS_CLIENT_ID
+from settings import ANDROID_AUDIENCE
+
 EMAIL_SCOPE = endpoints.EMAIL_SCOPE
 API_EXPLORER_CLIENT_ID = endpoints.API_EXPLORER_CLIENT_ID
 MEMCACHE_ANNOUNCEMENTS_KEY = "RECENT_ANNOUNCEMENTS"
@@ -128,8 +134,8 @@ CUSTOM_SESSION_GET_REQUEST = endpoints.ResourceContainer(
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
-@endpoints.api(name='conference', version='v1',
-    allowed_client_ids=[WEB_CLIENT_ID, API_EXPLORER_CLIENT_ID],
+@endpoints.api(name='conference', version='v1', audiences=[ANDROID_AUDIENCE],
+    allowed_client_ids=[WEB_CLIENT_ID, API_EXPLORER_CLIENT_ID, ANDROID_CLIENT_ID, IOS_CLIENT_ID],
     scopes=[EMAIL_SCOPE])
 class ConferenceApi(remote.Service):
     """Conference API v0.1"""
