@@ -764,7 +764,7 @@ class ConferenceApi(remote.Service):
             """Return all sessions for a conference by start time."""
 
             all_sessions = self._getSessions(request.websafeConferenceKey)
-            start_time_sessions = all_sessions.filter(Session.highlights == highlights)
+            start_time_sessions = all_sessions.filter(Session.highlights == request.highlights)
 
             return SessionForms(
                 items=[self._copySessionToForm(sess) for sess in start_time_sessions]
