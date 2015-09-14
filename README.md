@@ -40,7 +40,7 @@ This was implemented using an explicit property 'conference', in this case I fou
 I have added a property to user's profile object : 'sessionWishlist', a reapeated string to store every session key, user can also add any session to the interest list regardless if he's registered for the conference or not.
 API reference : addSessionToWishlist(SessionKey) - will add a session key and getSessionsInWishlist() will retrieve the entire list of session keys.
 
-## Task 3 : Work omn indexes and queries
+## Task 3 : Work on indexes and queries
 
  I've created two new queries :
  
