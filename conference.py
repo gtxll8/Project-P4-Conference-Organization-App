@@ -122,7 +122,7 @@ SESSION_HIGHLIGHTS_GET_REQUEST = endpoints.ResourceContainer(
 
 CUSTOM_SESSION_GET_REQUEST = endpoints.ResourceContainer(
     message_types.VoidMessage,
-    sessionType=messages.StringField(1),
+    excludeSessionType=messages.StringField(1),
     startTime=messages.StringField(2),
 )
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -780,12 +780,12 @@ class ConferenceApi(remote.Service):
 # - - - - - - - - - Non workshop sessions starting after 7PM - - - - - - - - - - - -
 
     @endpoints.method(CUSTOM_SESSION_GET_REQUEST, SessionForms,
-                      path='session/by/{sessionType}/and/{startTime}',
+                      path='session/by/{excludeSessionType}/and/{startTime}',
                       http_method='GET', name='getSessionsCustomRequest')
     def getSessionsCustomRequest(self, request):
-            """Return all sessions od certain type and start time is after a given time."""
+            """Return all sessions excluding certain type and the start time is after a given time."""
 
-            # check time string formating
+            # check time string formatting
             try:
                 start_time = datetime.strptime(request.startTime, '%H:%M').time()
 
@@ -794,7 +794,7 @@ class ConferenceApi(remote.Service):
                 raise endpoints.BadRequestException("'startTime' needed in this format: '%H:%M' ")
 
             sessions = Session.query()
-            sessions_qualified = sessions.filter(Session.typeOfSession == request.sessionType).filter(
+            sessions_qualified = sessions.filter(Session.typeOfSession != request.excludeSessionType).filter(
                 Session.startTime >= start_time
             )
             return SessionForms(
