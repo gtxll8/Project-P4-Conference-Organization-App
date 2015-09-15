@@ -742,7 +742,7 @@ class ConferenceApi(remote.Service):
 # - - - - - - - - - - 2 Extra queries - - - - - - - - - - - - -
 
     @endpoints.method(SESSION_START_TIME_GET_REQUEST, SessionForms,
-                      path='session/{websafeConferenceKey}/by/{startTime}',
+                      path='session/{websafeConferenceKey}/time/{startTime}',
                       http_method='GET', name='getConferenceSessionsByStartTime')
     def getConferenceSessionsByStartTime(self, request):
             """Return all sessions for a conference by start time."""
@@ -762,7 +762,7 @@ class ConferenceApi(remote.Service):
             )
 
     @endpoints.method(SESSION_HIGHLIGHTS_GET_REQUEST, SessionForms,
-                      path='session/{websafeConferenceKey}/by/{highlights}',
+                      path='session/{websafeConferenceKey}/highlights/{highlights}',
                       http_method='GET', name='getConferenceSessionsByHighlights')
     def getConferenceSessionsByHighlights(self, request):
             """Return all sessions for a conference by start time."""
@@ -792,12 +792,12 @@ class ConferenceApi(remote.Service):
             # first query select all sessions with inequality filter
             sessions_type_filtered = Session.query(Session.typeOfSession != request.excludeSessionType)
             # iterate through the results and look apply second inequality filter
-            sessions_qualified = [t for t in sessions_type_filtered if t.startTime >= start_time]
+            sessions_qualified = [t for t in sessions_type_filtered if t.startTime <= start_time]
             # display results
             return SessionForms(
                 items=[self._copySessionToForm(sess) for sess in sessions_qualified]
             )
-# - - - - - - - - - Add a task queue when more than one session with same speaker - - - - -
+# - - - - - - - Used to add a task queue when more than one session with same speaker - - - - -
 
     @staticmethod
     def _getFeaturedSpeaker(speaker, webSafeKey):
