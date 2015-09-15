@@ -114,8 +114,3 @@ indexes:
   properties:
   - name: typeOfSession
   - name: startTime
-
-- kind: Speaker
-  properties:
-  - name: name
-  - name: email
