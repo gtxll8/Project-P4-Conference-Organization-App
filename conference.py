@@ -801,8 +801,9 @@ class ConferenceApi(remote.Service):
 
     @staticmethod
     def _getFeaturedSpeaker(speaker, webSafeKey):
-        """Create Announcement & assign to memcache; used by
-        memcache cron job & putAnnouncement().
+        """This will check if the speaker is featured in more
+        than one session then it will create an anouncement
+        assigning it to memcache.
         """
         # get all existing sessions
         confkey = ndb.Key(urlsafe=webSafeKey)
@@ -813,7 +814,7 @@ class ConferenceApi(remote.Service):
             announcement = '%s %s %s %s' % (
                 'This speaker is very popular:',
                 speaker,
-                'he is featured in these sessions:',
+                '. He is featured in these sessions:',
                 ', '.join(sess.name for sess in speaker_sessions))
             memcache.set(FEATURED_SPEAKER_SESSIONS_KEY, announcement)
         else:
@@ -823,6 +824,8 @@ class ConferenceApi(remote.Service):
 
         return announcement
 
+    # This provides the means to check if the memcache had indeed been added
+    # ,you can simply run this in the API explorer to check if it worked
     @endpoints.method(message_types.VoidMessage, StringMessage,
             path='conference/getFeaturedSpeaker',
             http_method='GET', name='getFeaturedSpeaker')
