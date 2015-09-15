@@ -800,12 +800,13 @@ class ConferenceApi(remote.Service):
 # - - - - - - - - - Add a task queue when more than one session with same speaker - - - - -
 
     @staticmethod
-    def _getFeaturedSpeaker(speaker, websafeConferenceKey):
+    def _getFeaturedSpeaker(speaker, webSafeKey):
         """Create Announcement & assign to memcache; used by
         memcache cron job & putAnnouncement().
         """
         # get all existing sessions
-        all_sessions = Session.get_session_by_conferencekey(websafeConferenceKey)
+        confkey = ndb.Key(urlsafe=webSafeKey)
+        all_sessions = Session.get_session_by_conferencekey(confkey)
         # check to see if speaker is present already in other sessions
         speaker_sessions = all_sessions.filter(Session.speaker == speaker)
         if speaker_sessions.count() > 1:
