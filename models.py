@@ -104,7 +104,7 @@ class SessionForm(messages.Message):
 class Speaker(ndb.Model):
     """Speaker -- Speaker object"""
     name            = ndb.StringProperty(required=True)
-    email           = ndb.IStringProperty()
+    email           = ndb.StringProperty()
 
 class SessionForms(messages.Message):
     """SessionForms -- multiple Sessions outbound form message"""
