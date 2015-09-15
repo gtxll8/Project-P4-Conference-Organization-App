@@ -810,8 +810,9 @@ class ConferenceApi(remote.Service):
         # check to see if speaker is present already in other sessions
         speaker_sessions = all_sessions.filter(Session.speaker == speaker)
         if speaker_sessions.count() > 1:
-            announcement = '%s %s' % (
-                'This speaker is very popular '
+            announcement = '%s %s %s %s' % (
+                'This speaker is very popular:',
+                [speaker],
                 'he is featured in these sessions:',
                 ', '.join(sess.name for sess in speaker_sessions))
             memcache.set(FEATURED_SPEAKER_SESSIONS_KEY, announcement)
@@ -821,7 +822,7 @@ class ConferenceApi(remote.Service):
             memcache.delete(FEATURED_SPEAKER_SESSIONS_KEY)
 
         return announcement
-# - - - - ????????????????????????? - - - - - -
+
     @endpoints.method(message_types.VoidMessage, StringMessage,
             path='conference/getFeaturedSpeaker',
             http_method='GET', name='getFeaturedSpeaker')
@@ -832,7 +833,6 @@ class ConferenceApi(remote.Service):
         if not announcement:
             announcement = ""
         return StringMessage(data=announcement)
-
 
 # - - - Announcements - - - - - - - - - - - - - - - - - - - -
 
