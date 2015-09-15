@@ -78,7 +78,7 @@ class ConferenceForm(messages.Message):
 class Session(ndb.Model):
     """Session -- Session object"""
     name            = ndb.StringProperty(required=True)
-    speaker         = ndb.StringProperty()
+    speaker         = ndb.KeyProperty(kind='Speaker')
     highlights      = ndb.StringProperty(repeated=True)
     duration        = ndb.IntegerProperty()
     typeOfSession   = ndb.StringProperty(choices=['workshop', 'keynotes', 'breakout'])  # list with possible types of sessions
