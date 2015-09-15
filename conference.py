@@ -104,7 +104,7 @@ SESSION_TYPE_GET_REQUEST = endpoints.ResourceContainer(
 
 SPEAKER_SESSIONS_GET_REQUEST = endpoints.ResourceContainer(
     message_types.VoidMessage,
-    speaker=messages.StringField(1),
+    speakerName=messages.StringField(1),
 )
 
 WISHLIST_POST_REQUEST = endpoints.ResourceContainer(
@@ -607,9 +607,9 @@ class ConferenceApi(remote.Service):
 
         # Check to see if the speaker is present in more than one
         # session and if it is then add a task queue
-        speaker_sessions = Session.query(Session.speaker == data['speaker']).count()
+        speaker_sessions = Session.query(Session.speaker.name == data['speaker.name']).count()
         if speaker_sessions > 1:
-            taskqueue.add(params={'speaker': data['speaker'],
+            taskqueue.add(params={'speaker.name': data['speaker.name'],
                           'websafeConferenceKey': request.websafeConferenceKey},
                           url='/tasks/get_featured_speaker'
                           )
@@ -671,7 +671,7 @@ class ConferenceApi(remote.Service):
 # - - - - -  Get all sessions in which a speaker is present- - - -
 
     @endpoints.method(SPEAKER_SESSIONS_GET_REQUEST, SessionForms,
-                      path='session/speaker/{speaker}',
+                      path='session/speaker/name/{speaker.name}',
                       http_method='GET', name='getSessionsBySpeaker')
     def getSessionsBySpeaker(self, request):
             """Return all sessions featuring a speaker's name."""
@@ -679,8 +679,8 @@ class ConferenceApi(remote.Service):
             # not using the ndb classmethod this time,
             # select all sessions and filter by speaker
             sessions = Session.query()
-            if request.speaker:
-                sessions = sessions.filter(Session.speaker == request.speaker)
+            if request.speaker.name:
+                sessions = sessions.filter(Session.speaker.name == request.speaker.name)
             return SessionForms(
                 items=[self._copySessionToForm(sess) for sess in sessions]
             )
@@ -809,11 +809,11 @@ class ConferenceApi(remote.Service):
         confkey = ndb.Key(urlsafe=webSafeKey)
         all_sessions = Session.get_session_by_conferencekey(confkey)
         # check to see if speaker is present already in other sessions
-        speaker_sessions = all_sessions.filter(Session.speaker == speaker)
+        speaker_sessions = all_sessions.filter(Session.speaker.name == speaker.name)
         if speaker_sessions.count() > 1:
             announcement = '%s %s %s %s' % (
                 'This speaker is very popular:',
-                speaker,
+                speaker.name,
                 '. He is featured in these sessions:',
                 ', '.join(sess.name for sess in speaker_sessions))
             memcache.set(FEATURED_SPEAKER_SESSIONS_KEY, announcement)
