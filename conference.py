@@ -656,7 +656,7 @@ class ConferenceApi(remote.Service):
 # - - - - -  Given a conference return a specific session type ( lecture, workshop etc. )- - - -
 
     @endpoints.method(SESSION_TYPE_GET_REQUEST, SessionForms,
-                      path='session/{websafeConferenceKey}/{sessionType}',
+                      path='session/{websafeConferenceKey}/type/{sessionType}',
                       http_method='GET', name='getConferenceSessionsByType')
     def getConferenceSessionsByType(self, request):
             """Return all sessions of a particular type."""
@@ -671,7 +671,7 @@ class ConferenceApi(remote.Service):
 # - - - - -  Get all sessions in which a speaker is present- - - -
 
     @endpoints.method(SPEAKER_SESSIONS_GET_REQUEST, SessionForms,
-                      path='session/{speaker}',
+                      path='session/speaker/{speaker}',
                       http_method='GET', name='getSessionsBySpeaker')
     def getSessionsBySpeaker(self, request):
             """Return all sessions featuring a speaker's name."""
