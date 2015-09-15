@@ -33,11 +33,11 @@ App Engine application for the Udacity training course.
 
 ## Task 1 : Add Session to a Conference
 
-This was implemented using an explicit property 'conference', in this case I found this way to be simpler and clearer. Session class has all the requirements : Session name, highlights, speaker, duration, typeOfSession, startDate and startTime ( 24H format ). I have used various method to fetch data from ndb, I have implemented a clasmethod and also explicit code for queries in all the app's endpoints. Speaker has been implemented as a simple string.
+This was implemented using an explicit property 'conference', in this case I found this way to be simpler and clearer. Session class has all the requirements : Session name, highlights, speaker, duration, typeOfSession, startDate and startTime ( 24H format ). I have used various method to fetch data from ndb, I have implemented a classmethod and also explicit code for queries in all the app's endpoints. Speaker has been implemented as a simple string.
 
 ## Task 2 : Add Sessions to User Wishlist
 
-I have added a property to user's profile object : 'sessionWishlist', a reapeated string to store every session key, user can also add any session to the interest list regardless if he's registered for the conference or not.
+I have added a property to user's profile object : 'sessionWishlist', a repeated string to store every session key, user can also add any session to the interest list regardless if he's registered for the conference or not.
 API reference : addSessionToWishlist(SessionKey) - will add a session key and getSessionsInWishlist() will retrieve the entire list of session keys.
 
 ## Task 3 : Work on indexes and queries
@@ -47,7 +47,7 @@ API reference : addSessionToWishlist(SessionKey) - will add a session key and ge
  - getConferenceSessionsByStartTime
  - getConferenceSessionsByHighlights
 
-I have added the follwing indexes to support two new type of queries required :
+I have added the following indexes to support two new type of queries required :
 
    - kind: Session
   properties:
@@ -60,7 +60,7 @@ I have added the follwing indexes to support two new type of queries required :
   - name: startTime
 
 Problem query related problem :
- - the problem in this case is that datastore API does not alow inequality filters on two different properties, as in our case startTime and sessionType.
+ - the problem in this case is that datastore API does not allow inequality filters on two different properties, as in our case startTime and sessionType.
  - a workaround would be to use datastore to do the query on the first inequality and then post filter the result, as implemented in : getSessionsCustomRequest
  ```
 
