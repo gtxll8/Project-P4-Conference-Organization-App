@@ -800,15 +800,15 @@ class ConferenceApi(remote.Service):
 # - - - - - - - - - Add a task queue when more than one session with same speaker - - - - -
 
     @staticmethod
-    def _getFeaturedSpeaker(self, speaker, websafeConferenceKey):
+    def _getFeaturedSpeaker(speaker, websafeConferenceKey):
         """Create Announcement & assign to memcache; used by
         memcache cron job & putAnnouncement().
         """
-        all_sessions = self._getSessions(websafeConferenceKey)
+        # get all existing sessions
+        all_sessions = _getSessions(websafeConferenceKey)
         # check to see if speaker is present already in other sessions
-        sessions = all_sessions.filter(Session.speaker == speaker)
-
-        if sessions:
+        speaker_sessions = all_sessions.filter(Session.speaker == speaker)
+        if speaker_sessions.count() > 1:
             announcement = '%s %s' % (
                 'This speaker is very popular '
                 'he is featured in these sessions:',
@@ -822,7 +822,7 @@ class ConferenceApi(remote.Service):
         return announcement
 # - - - - ????????????????????????? - - - - - -
     @endpoints.method(message_types.VoidMessage, StringMessage,
-            path='conference/getFeaturedSpeaker/',
+            path='conference/getFeaturedSpeaker',
             http_method='GET', name='getFeaturedSpeaker')
     def getFeaturedSpeaker(self, request):
         """Return Announcement from memcache."""
