@@ -816,8 +816,7 @@ class ConferenceApi(remote.Service):
             memcache.set(FEATURED_SPEAKER_SESSIONS_KEY, announcement)
         else:
             # delete the memcache announcements entry
-            announcemen
-            t = ""
+            announcement = ""
             memcache.delete(FEATURED_SPEAKER_SESSIONS_KEY)
 
         return announcement
