@@ -603,8 +603,17 @@ class ConferenceApi(remote.Service):
 
         # creation of Session and return SessionForm
         new_key = Session(**data).put()
-
         request.sessionKey = new_key.urlsafe()
+
+        # Check to see if the speaker is present in more than one
+        # session and if it is then add a task queue
+        speaker_sessions = Session.query(Session.speaker == data['speaker']).count()
+        if speaker_sessions > 1:
+            taskqueue.add(params={'speaker': data['speaker'],
+                          'websafeConferenceKey': request.websafeConferenceKey},
+                          url='/tasks/get_featured_speaker'
+                          )
+
         return self._copySessionToForm(request)
 
     # get all the sessions given a conference
@@ -807,11 +816,12 @@ class ConferenceApi(remote.Service):
             memcache.set(FEATURED_SPEAKER_SESSIONS_KEY, announcement)
         else:
             # delete the memcache announcements entry
-            announcement = ""
+            announcemen
+            t = ""
             memcache.delete(FEATURED_SPEAKER_SESSIONS_KEY)
 
         return announcement
-
+# - - - - ????????????????????????? - - - - - -
     @endpoints.method(message_types.VoidMessage, StringMessage,
             path='conference/getFeaturedSpeaker/',
             http_method='GET', name='getFeaturedSpeaker')

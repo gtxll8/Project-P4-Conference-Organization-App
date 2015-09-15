@@ -44,6 +44,6 @@ class getFeaturedSpeakerHandler(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/crons/set_announcement', SetAnnouncementHandler),
-    ('/tasks/getFeaturedSpeaker', getFeaturedSpeakerHandler),
+    ('/tasks/get_featured_speaker', getFeaturedSpeakerHandler),
     ('/tasks/send_confirmation_email', SendConfirmationEmailHandler),
 ], debug=True)
