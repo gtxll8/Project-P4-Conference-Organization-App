@@ -813,7 +813,7 @@ class ConferenceApi(remote.Service):
             announcement = '%s %s' % (
                 'This speaker is very popular '
                 'he is featured in these sessions:',
-                ', '.join(sess.name for sess in sessions))
+                ', '.join(sess.name for sess in speaker_sessions))
             memcache.set(FEATURED_SPEAKER_SESSIONS_KEY, announcement)
         else:
             # delete the memcache announcements entry
