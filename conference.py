@@ -805,7 +805,7 @@ class ConferenceApi(remote.Service):
         memcache cron job & putAnnouncement().
         """
         # get all existing sessions
-        all_sessions = _getSessions(websafeConferenceKey)
+        all_sessions = Session.get_session_by_conferencekey(websafeConferenceKey)
         # check to see if speaker is present already in other sessions
         speaker_sessions = all_sessions.filter(Session.speaker == speaker)
         if speaker_sessions.count() > 1:
