@@ -812,7 +812,7 @@ class ConferenceApi(remote.Service):
         if speaker_sessions.count() > 1:
             announcement = '%s %s %s %s' % (
                 'This speaker is very popular:',
-                [speaker],
+                speaker,
                 'he is featured in these sessions:',
                 ', '.join(sess.name for sess in speaker_sessions))
             memcache.set(FEATURED_SPEAKER_SESSIONS_KEY, announcement)
