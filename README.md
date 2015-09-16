@@ -35,6 +35,17 @@ App Engine application for the Udacity training course.
 
 This was implemented using an explicit property 'conference', in this case I found this way to be simpler and clearer. Session class has all the requirements : Session name, highlights, speaker, duration, typeOfSession, startDate and startTime ( 24H format ). I have used various method to fetch data from ndb, I have implemented a classmethod and also explicit code for queries in all the app's endpoints. Speaker has been implemented as a simple string.
 
+    name            = ndb.StringProperty(required=True)
+    speaker         = ndb.StringProperty()
+    highlights      = ndb.StringProperty(repeated=True)
+    duration        = ndb.IntegerProperty()
+    typeOfSession   = ndb.StringProperty(choices=['workshop', 'keynotes', 'breakout'])  # list with possible types of sessions
+    startDate       = ndb.DateProperty()
+    startTime       = ndb.TimeProperty()
+    conference = ndb.KeyProperty(kind=r'Conference')
+
+For fields like name, speaker and highlights
+
 ## Task 2 : Add Sessions to User Wishlist
 
 I have added a property to user's profile object : 'sessionWishlist', a repeated string to store every session key, user can also add any session to the interest list regardless if he's registered for the conference or not.
