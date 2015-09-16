@@ -749,6 +749,8 @@ class ConferenceApi(remote.Service):
             """Return all sessions for a conference by start time."""
 
             # Collect data from request and check startTime format
+            # this is so we don't use : request.startTime, '%H:%M'
+            # ,correction after first review
             data = {}
             for field in request.all_fields():
                 value = getattr(request, field.name)
@@ -756,8 +758,6 @@ class ConferenceApi(remote.Service):
                 if value and field.name == 'startTime':
                     data['startTime'] = datetime.strptime(
                         value, '%H:%M').time()
-                else:
-                    raise endpoints.BadRequestException("'startTime' needed in this format: '%H:%M' ")
 
             all_sessions = self._getSessions(request.websafeConferenceKey)
             start_time_sessions = all_sessions.filter(Session.startTime >= data['startTime'])
@@ -787,17 +787,21 @@ class ConferenceApi(remote.Service):
     def getSessionsCustomRequest(self, request):
             """Return all sessions excluding certain type and specific start time"""
 
-            # check time string formatting
-            try:
-                start_time = datetime.strptime(request.startTime, '%H:%M').time()
+            # Collect data from request and check startTime format
+            # this is so we don't use : request.startTime, '%H:%M'
+            # ,correction after first review
+            data = {}
+            for field in request.all_fields():
+                value = getattr(request, field.name)
 
-            # if time value is formatted wrongly
-            except Exception:
-                raise endpoints.BadRequestException("'startTime' needed in this format: '%H:%M' ")
+                if value and field.name == 'startTime':
+                    data['startTime'] = datetime.strptime(
+                        value, '%H:%M').time()
+
             # first query select all sessions with inequality filter
             sessions_type_filtered = Session.query(Session.typeOfSession != request.excludeSessionType)
             # iterate through the results and look apply second inequality filter
-            sessions_qualified = [t for t in sessions_type_filtered if t.startTime <= start_time]
+            sessions_qualified = [t for t in sessions_type_filtered if t.startTime <= data['startTime']]
             # display results
             return SessionForms(
                 items=[self._copySessionToForm(sess) for sess in sessions_qualified]
