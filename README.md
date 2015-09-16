@@ -46,11 +46,29 @@ This was implemented using an explicit property 'conference', in this case I fou
 
 For fields like 'name', 'speaker' and 'highlights' I've used StringProperty() as it will be easier to store and process. I've chosen the 'name' field as required implicitly, we need at least a name for our speaker. Highlights chosen to be repeated can be useful to add more than one highlit to a session. For the 'duration' field have chose IntegerPropery() as a number representing minutes. Type of session has a pre configured list of choices, of course it could be also implemented as a class like in the case of TeeShirtSize. StartDate and StartTime as date and time properties esier to validate. I've added a KeyProperty kind 'Conference' for as a 'To Do' list, it could help build more complex queries only form the Session class itself.
 
-The 'get_session_by_conferencekey' was added to show the use of classmethods which can simplify queries sometime.
+The "get_session_by_conferencekey" was added to show the use of classmethods which can simplify queries sometime.
 
-   @classmethod
-    def get_session_by_conferencekey(cls, confwebsafekey):
-        return cls.query(cls.conference == confwebsafekey)
+       @classmethod
+          def get_session_by_conferencekey(cls, confwebsafekey):
+              return cls.query(cls.conference == confwebsafekey)
+  
+Or though I've implemented the speaker as a StringProperty one solution could be to create it as an independent entity which could also store more details about the speaker like : email, contact details but also a key to be referenced easily on sessions across more than one conference. They are featured as an example but not actively implemented in the code :
+
+class Speaker(ndb.Model):
+    """Speaker -- Speaker object"""
+    speakerName     = ndb.StringProperty(required=True)
+    email           = ndb.StringProperty()
+    apeakerSess     = ndb.StringProperty(repeated=True)
+    speakerKey      = ndb.StringProperty()
+
+class SpeakerForm(messages.Message):
+    """SpeakerForm -- Speaker outbound form message"""
+    speakerName      = messages.StringField(1)
+    email            = messages.StringField(2)
+    speakerKey       = messages.StringField(3)
+    apeakerSess      = messages.StringField(4, repeated=True)
+    websafeKey       = messages.StringField(5)
+
 
 ## Task 2 : Add Sessions to User Wishlist
 
