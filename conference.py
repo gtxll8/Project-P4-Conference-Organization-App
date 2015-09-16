@@ -794,10 +794,9 @@ class ConferenceApi(remote.Service):
             for field in request.all_fields():
                 value = getattr(request, field.name)
 
-                try:
-                    data['startTime'] = datetime.strptime(value, '%H:%M').time()
-                except Exception:
-                    raise endpoints.BadRequestException("'startTime' needed in this format: '%H:%M' ")
+                if value and field.name == 'startTime':
+                    data['startTime'] = datetime.strptime(
+                        value, '%H:%M').time()
 
             # first query select all sessions with inequality filter
             sessions_type_filtered = Session.query(Session.typeOfSession != request.excludeSessionType)
