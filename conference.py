@@ -756,8 +756,8 @@ class ConferenceApi(remote.Service):
                 if value and field.name == 'startTime':
                     data['startTime'] = datetime.strptime(
                         value, '%H:%M').time()
-                else:
-                    raise endpoints.BadRequestException("'startTime' needed in this format: '%H:%M' ")
+                # else:
+                #    raise endpoints.BadRequestException("'startTime' needed in this format: '%H:%M' ")
 
             all_sessions = self._getSessions(data['websafeConferenceKey'])
             start_time_sessions = all_sessions.filter(Session.startTime >= data['startTime'])
