@@ -115,7 +115,7 @@ WISHLIST_POST_REQUEST = endpoints.ResourceContainer(
 SESSION_START_TIME_GET_REQUEST = endpoints.ResourceContainer(
     message_types.VoidMessage,
     websafeConferenceKey=messages.StringField(1),
-    startTime=messages.DateTimeField(2, input_formats=['%H:%M']),
+    startTime=messages.DateTimeField(2),
 )
 
 SESSION_HIGHLIGHTS_GET_REQUEST = endpoints.ResourceContainer(
