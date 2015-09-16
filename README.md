@@ -54,7 +54,7 @@ The "get_session_by_conferencekey" was added to show the use of classmethods whi
   
 Or though I've implemented the speaker as a StringProperty one solution could be to create it as an independent entity which could also store more details about the speaker like : email, contact details but also a key to be referenced easily on sessions across more than one conference. They are featured as an example but not actively implemented in the code :
 
-class Speaker(ndb.Model):
+   class Speaker(ndb.Model):
     """Speaker -- Speaker object"""
     speakerName     = ndb.StringProperty(required=True)
     email           = ndb.StringProperty()
