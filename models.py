@@ -103,8 +103,18 @@ class SessionForm(messages.Message):
 
 class Speaker(ndb.Model):
     """Speaker -- Speaker object"""
-    name            = ndb.StringProperty(required=True)
+    speakerName     = ndb.StringProperty(required=True)
     email           = ndb.StringProperty()
+    apeakerSess     = ndb.StringProperty(repeated=True)
+    speakerKey      = ndb.StringProperty()
+
+class SpeakerForm(messages.Message):
+    """SpeakerForm -- Speaker outbound form message"""
+    speakerName      = messages.StringField(1)
+    email            = messages.StringField(2)
+    speakerKey       = messages.StringField(3)
+    apeakerSess      = messages.StringField(4, repeated=True)
+    websafeKey       = messages.StringField(5)
 
 class SessionForms(messages.Message):
     """SessionForms -- multiple Sessions outbound form message"""
