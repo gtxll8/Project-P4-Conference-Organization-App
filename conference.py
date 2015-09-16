@@ -759,7 +759,7 @@ class ConferenceApi(remote.Service):
                 # else:
                 #    raise endpoints.BadRequestException("'startTime' needed in this format: '%H:%M' ")
 
-            all_sessions = self._getSessions(data['websafeConferenceKey'])
+            all_sessions = self._getSessions(request.websafeConferenceKey)
             start_time_sessions = all_sessions.filter(Session.startTime >= data['startTime'])
 
             return SessionForms(
