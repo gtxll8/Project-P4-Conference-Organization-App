@@ -113,6 +113,14 @@ WISHLIST_POST_REQUEST = endpoints.ResourceContainer(
     websafeSessionKey=messages.StringField(1),
 )
 
+class Greeting(messages.Message):
+  """Greeting that stores a message."""
+  message = messages.StringField(1)
+
+MULTIPLY_METHOD_RESOURCE = endpoints.ResourceContainer(
+      Greeting,
+      times=messages.IntegerField(2, variant=messages.Variant.INT32,
+                                  required=True))
 
 SESSION_START_TIME_GET_REQUEST = endpoints.ResourceContainer(
     message_types.VoidMessage,
