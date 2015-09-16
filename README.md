@@ -33,18 +33,24 @@ App Engine application for the Udacity training course.
 
 ## Task 1 : Add Session to a Conference
 
-This was implemented using an explicit property 'conference', in this case I found this way to be simpler and clearer. Session class has all the requirements : Session name, highlights, speaker, duration, typeOfSession, startDate and startTime ( 24H format ). I have used various method to fetch data from ndb, I have implemented a classmethod and also explicit code for queries in all the app's endpoints. Speaker has been implemented as a simple string.
+This was implemented using an explicit property 'conference', in this case I found this way to be simpler and clearer. Session class has all the requirements : Session name, highlights, speaker, duration, typeOfSession, startDate and startTime ( 24H format ). I have used various method to fetch data from ndb, I have implemented a classmethod and also explicit code for queries in all the app's endpoints.
 
     name            = ndb.StringProperty(required=True)
     speaker         = ndb.StringProperty()
     highlights      = ndb.StringProperty(repeated=True)
     duration        = ndb.IntegerProperty()
-    typeOfSession   = ndb.StringProperty(choices=['workshop', 'keynotes', 'breakout'])  # list with possible types of sessions
+    typeOfSession   = ndb.StringProperty(choices=['workshop', 'keynotes', 'breakout']) 
     startDate       = ndb.DateProperty()
     startTime       = ndb.TimeProperty()
-    conference = ndb.KeyProperty(kind=r'Conference')
+    conference      = ndb.KeyProperty(kind=r'Conference')
 
-For fields like name, speaker and highlights
+For fields like 'name', 'speaker' and 'highlights' I've used StringProperty() as it will be easier to store and process. I've chosen the 'name' field as required implicitly, we need at least a name for our speaker. Highlights chosen to be repeated can be useful to add more than one highlit to a session. For the 'duration' field have chose IntegerPropery() as a number representing minutes. Type of session has a pre configured list of choices, of course it could be also implemented as a class like in the case of TeeShirtSize. StartDate and StartTime as date and time properties esier to validate. I've added a KeyProperty kind 'Conference' for as a 'To Do' list, it could help build more complex queries only form the Session class itself.
+
+The 'get_session_by_conferencekey' was added to show the use of classmethods which can simplify queries sometime.
+
+   @classmethod
+    def get_session_by_conferencekey(cls, confwebsafekey):
+        return cls.query(cls.conference == confwebsafekey)
 
 ## Task 2 : Add Sessions to User Wishlist
 
@@ -55,8 +61,9 @@ API reference : addSessionToWishlist(SessionKey) - will add a session key and ge
 
  I've created two new queries :
  
- - getConferenceSessionsByStartTime
- - getConferenceSessionsByHighlights
+ - getConferenceSessionsByStartTime - given a conference key and a start time it will return all the session within that conference that are greater or equal to teh start time.
+
+ - getConferenceSessionsByHighlights - this will search in a conference for session that has a highlight of interest
 
 I have added the following indexes to support two new type of queries required :
 
@@ -82,7 +89,11 @@ Problem query related problem :
 ```
 ## Task 4 : Adding a task
 
-I have added a task to check when a speaker is added if he is also featured in other sessions on the same conference, this will make an entry into the memcache.
+I have added a task to check when a speaker is added if he is also featured in other sessions on the same conference, this will make an entry into the memcache. To check if the memcache had an entry the folowing API can be used which will read the a message containing featured speaker's name : getConferenceSessionsByHighlights
+   
+
+
+
 
  
 
