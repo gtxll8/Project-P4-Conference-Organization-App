@@ -833,7 +833,7 @@ class ConferenceApi(remote.Service):
 
         return announcement
 
-    # This provides the means to check if the memcache had indeed been added
+    # This provides the means to check if the memcache has indeed been updated
     # ,you can simply run this in the API explorer to check if it worked
     @endpoints.method(message_types.VoidMessage, StringMessage,
             path='conference/getFeaturedSpeaker',
