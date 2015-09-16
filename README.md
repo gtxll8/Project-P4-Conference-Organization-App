@@ -44,9 +44,9 @@ This was implemented using an explicit property 'conference', in this case I fou
     startTime       = ndb.TimeProperty()
     conference      = ndb.KeyProperty(kind=r'Conference')
 
-For fields like 'name', 'speaker' and 'highlights' I've used StringProperty() as it will be easier to store and process. I've chosen the 'name' field as required implicitly, we need at least a name for our speaker. Highlights chosen to be repeated can be useful to add more than one highlit to a session. For the 'duration' field have chose IntegerPropery() as a number representing minutes. Type of session has a pre configured list of choices, of course it could be also implemented as a class like in the case of TeeShirtSize. StartDate and StartTime as date and time properties esier to validate. I've added a KeyProperty kind 'Conference' for as a 'To Do' list, it could help build more complex queries only form the Session class itself.
+For fields like 'name', 'speaker' and 'highlights' I've used StringProperty() as it will be easier to store and process. I've chosen the 'name' field as required implicitly, we need at least a name for our speaker. Highlights chosen to be repeated can be useful to add more than one highlight to a session. For the 'duration' field have chose IntegerPropery() as a number representing minutes. Type of session has a pre configured list of choices, of course it could be also implemented as a class like in the case of TeeShirtSize. StartDate and StartTime as date and time properties easier to validate. I've added a KeyProperty kind 'Conference' for a 'To Do' list, that could help build more complex queries only from the Session class itself.
 
-The "get_session_by_conferencekey" was added to show the use of classmethods which can simplify queries sometime.
+The "get_session_by_conferencekey" was added to show the use of classmethods which can , sometime, simplify queries.
 
        @classmethod
           def get_session_by_conferencekey(cls, confwebsafekey):
@@ -54,21 +54,22 @@ The "get_session_by_conferencekey" was added to show the use of classmethods whi
   
 Or though I've implemented the speaker as a StringProperty one solution could be to create it as an independent entity which could also store more details about the speaker like : email, contact details but also a key to be referenced easily on sessions across more than one conference. They are featured as an example but not actively implemented in the code :
 
-   class Speaker(ndb.Model):
-    """Speaker -- Speaker object"""
-    speakerName     = ndb.StringProperty(required=True)
-    email           = ndb.StringProperty()
-    apeakerSess     = ndb.StringProperty(repeated=True)
-    speakerKey      = ndb.StringProperty()
+     ```
+                class Speaker(ndb.Model):
+                     """Speaker -- Speaker object"""
+                     speakerName     = ndb.StringProperty(required=True)
+                     email           = ndb.StringProperty()
+                     speakerSess     = ndb.StringProperty(repeated=True)
+                     speakerKey      = ndb.StringProperty()
 
-class SpeakerForm(messages.Message):
-    """SpeakerForm -- Speaker outbound form message"""
-    speakerName      = messages.StringField(1)
-    email            = messages.StringField(2)
-    speakerKey       = messages.StringField(3)
-    apeakerSess      = messages.StringField(4, repeated=True)
-    websafeKey       = messages.StringField(5)
-
+                class SpeakerForm(messages.Message):
+                    """SpeakerForm -- Speaker outbound form message"""
+                    speakerName      = messages.StringField(1)
+                    email            = messages.StringField(2)
+                    speakerKey       = messages.StringField(3)
+                    apeakerSess      = messages.StringField(4, repeated=True)
+                    websafeKey       = messages.StringField(5)
+     ```
 
 ## Task 2 : Add Sessions to User Wishlist
 
@@ -79,11 +80,11 @@ API reference : addSessionToWishlist(SessionKey) - will add a session key and ge
 
  I've created two new queries :
  
- - getConferenceSessionsByStartTime - given a conference key and a start time it will return all the session within that conference that are greater or equal to teh start time.
+ - getConferenceSessionsByStartTime - given a conference key and a start time it will return all the sessions within that conference that are greater or equal than the start time.
 
- - getConferenceSessionsByHighlights - this will search in a conference for session that has a highlight of interest
+ - getConferenceSessionsByHighlights - this will search in a conference for sessions that have a highlight of interest
 
-I have added the following indexes to support two new type of queries required :
+I have added the following indexes to support these two new type of queries:
 
    - kind: Session
   properties:
@@ -107,7 +108,7 @@ Problem query related problem :
 ```
 ## Task 4 : Adding a task
 
-I have added a task to check when a speaker is added if he is also featured in other sessions on the same conference, this will make an entry into the memcache. To check if the memcache had an entry the folowing API can be used which will read the a message containing featured speaker's name : getConferenceSessionsByHighlights
+I have added a task to check when a speaker is added if he is also featured in other sessions on the same conference, this will make an entry into the memcache. To check if the memcache had an entry the following API can be used which will read the a message containing the featured speaker name: getConferenceSessionsByHighlights
    
 
 
