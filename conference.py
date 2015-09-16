@@ -755,7 +755,7 @@ class ConferenceApi(remote.Service):
 
                 if value and field.name == 'startTime':
                     data['startTime'] = datetime.datetime.strptime(
-                        value, "%H:%M").time()
+                        value, '%H:%M').time()
                 else:
                     raise endpoints.BadRequestException("'startTime' needed in this format: '%H:%M' ")
 
