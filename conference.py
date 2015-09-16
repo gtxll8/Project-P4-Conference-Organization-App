@@ -113,15 +113,6 @@ WISHLIST_POST_REQUEST = endpoints.ResourceContainer(
     websafeSessionKey=messages.StringField(1),
 )
 
-class Greeting(messages.Message):
-  """Greeting that stores a message."""
-  message = messages.StringField(1)
-
-MULTIPLY_METHOD_RESOURCE = endpoints.ResourceContainer(
-      Greeting,
-      times=messages.IntegerField(2, variant=messages.Variant.INT32,
-                                  required=True))
-
 SESSION_START_TIME_GET_REQUEST = endpoints.ResourceContainer(
     message_types.VoidMessage,
     websafeConferenceKey=messages.StringField(1),
@@ -757,15 +748,19 @@ class ConferenceApi(remote.Service):
     def getConferenceSessionsByStartTime(self, request):
             """Return all sessions for a conference by start time."""
 
-            try:
-                start_time = datetime.strptime(request.startTime, '%H:%M').time()
+            # Collect data from request and check startTime format
+            data = {}
+            for field in request.all_fields():
+                value = getattr(request, field.name)
 
-            # if time value is formatted wrongly
-            except Exception:
-               raise endpoints.BadRequestException("'startTime' needed in this format: '%H:%M' ")
+                if value and field.name == 'startTime':
+                    data['startTime'] = datetime.datetime.strptime(
+                        value, "%H:%M").time()
+                else:
+                    raise endpoints.BadRequestException("'startTime' needed in this format: '%H:%M' ")
 
-            all_sessions = self._getSessions(request.websafeConferenceKey)
-            start_time_sessions = all_sessions.filter(Session.startTime >= start_time)
+            all_sessions = self._getSessions(data['websafeConferenceKey'])
+            start_time_sessions = all_sessions.filter(Session.startTime >= data['startTime'])
 
             return SessionForms(
                 items=[self._copySessionToForm(sess) for sess in start_time_sessions]
