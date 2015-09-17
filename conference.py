@@ -612,7 +612,7 @@ class ConferenceApi(remote.Service):
         if speaker_sessions > 1:
             taskqueue.add(params={'speaker': data['speaker'],
                           'websafeConferenceKey': request.websafeConferenceKey},
-                          url='/tasks/get_featured_speaker'
+                          url='/tasks/set_featured_speaker'
                           )
 
         return self._copySessionToForm(request)
@@ -809,7 +809,7 @@ class ConferenceApi(remote.Service):
 # - - - - - - - Used to add a task queue when more than one session with same speaker - - - - -
 
     @staticmethod
-    def _getFeaturedSpeaker(speaker, webSafeKey):
+    def _setFeaturedSpeaker(speaker, webSafeKey):
         """This will check if the speaker is featured in more
         than one session then it will create an anouncement
         assigning it to memcache.
@@ -839,7 +839,7 @@ class ConferenceApi(remote.Service):
             path='conference/getFeaturedSpeaker',
             http_method='GET', name='getFeaturedSpeaker')
     def getFeaturedSpeaker(self, request):
-        """Return Announcement from memcache."""
+        """Return featured speaker from memcache."""
         # return an existing announcement from Memcache or an empty string.
         announcement = memcache.get(FEATURED_SPEAKER_SESSIONS_KEY)
         if not announcement:
